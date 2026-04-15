@@ -210,14 +210,15 @@ tbody td{padding:10px 12px;font-size:13px}
     <div class="login-logo">GJ PackTrack</div>
     <div class="login-sub">包材庫存管理系統 · 請登入</div>
     <label class="login-label" for="li-user">SR Name / 帳號</label>
-    <input class="login-input" id="li-user" placeholder="e.g. TPSKMHY 或 OFFICE" autocomplete="off">
+    <input class="login-input" id="li-user" placeholder="e.g. TPSKMHY 或 ADMIN" autocomplete="off">
     <label class="login-label" for="li-pass">密碼</label>
     <input class="login-input" id="li-pass" type="password" placeholder="輸入密碼">
     <button class="login-btn" onclick="doLogin()">登入</button>
     <div class="login-err" id="login-err">帳號或密碼錯誤，請再試一次。</div>
     <div class="login-hint">
-      管理員：OFFICE / gjlogistics<br>
+      管理員：ADMIN / gjlogistics<br>
       倉庫：WAREHOUSE / gjwarehouse<br>
+      GJ辦公室：OFFICE / gtwb01f<br>
       門市：SR Name（如 TPSKMHY）/ Warehouse Code 小寫（如 gtwr04a）
     </div>
   </div>
@@ -295,6 +296,7 @@ tbody td{padding:10px 12px;font-size:13px}
             <input placeholder="搜尋品名..." id="usage-q" oninput="renderUsage()">
           </div>
           <div class="chips" id="usage-chips"></div>
+          <button class="btn btn-primary btn-sm" onclick="openAddMonthModal()">＋ 新增月份用量</button>
         </div>
         <div class="usage-wrap"><table class="usage-tbl"><thead id="usage-thead"></thead><tbody id="usage-body"></tbody></table></div>
       </div>
@@ -451,6 +453,33 @@ tbody td{padding:10px 12px;font-size:13px}
   </div>
 </div>
 
+<!-- MODAL: Add Monthly Usage -->
+<div class="overlay" id="modal-add-month">
+  <div class="modal" style="width:660px;max-height:88vh">
+    <div class="modal-hdr">
+      <div class="modal-title" id="add-month-title">新增月使用量</div>
+      <button class="modal-close" onclick="closeModal('modal-add-month')">×</button>
+    </div>
+    <div style="padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:8px">
+        <label style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em">月份</label>
+        <input type="month" class="fi" id="new-month-val" style="width:160px">
+      </div>
+      <div style="font-size:12px;color:var(--text3)">填寫各品項當月實際使用量，未使用請留空（視為 0）</div>
+    </div>
+    <div style="padding:8px 0;max-height:52vh;overflow-y:auto">
+      <div style="padding:7px 20px;display:grid;grid-template-columns:80px 1fr 90px;gap:8px;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border);background:var(--surface2)">
+        <span>貨號</span><span>品名</span><span style="text-align:center">使用量</span>
+      </div>
+      <div id="add-month-rows"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-add-month')">取消</button>
+      <button class="btn btn-primary" onclick="confirmAddMonth()">確認新增並更新</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -458,6 +487,7 @@ const ITEMS_DATA=[{"id":"3830419","name":"珠寶盒12*12*11","unit":"PCS","stock
 
 let items = JSON.parse(JSON.stringify(ITEMS_DATA));
 let orders = [];
+let MONTHS_LIST = [...MONTHS]; // mutable copy
 let currentUser = null;
 let editingItemId = null;
 let editingOrderId = null;
@@ -472,14 +502,16 @@ const CATS = ['全部', ...new Set(items.map(i => i.cat || '其他'))];
 
 // ── ACCOUNTS ──────────────────────────────────
 const ACCOUNTS = {
-  'OFFICE':    { role:'admin',     pw:'gjlogistics',  displayName:'總公司物流部', role_label:'管理員 · 全權限' },
+  'ADMIN':     { role:'admin',     pw:'gjlogistics',  displayName:'總公司物流部', role_label:'管理員 · 全權限' },
   'WAREHOUSE': { role:'admin',     pw:'gjwarehouse',  displayName:'總部倉庫',     role_label:'管理員 · 全權限' },
 };
 STORES_DATA.forEach(s => {
-  ACCOUNTS[s.sr_name.toUpperCase()] = {
+  const key = s.sr_name.toUpperCase();
+  ACCOUNTS[key] = {
     role:'store', pw: s.warehouse_code.toLowerCase(),
     displayName: s.store_name, role_label: s.warehouse_code,
-    srName: s.sr_name, warehouseCode: s.warehouse_code, storeName: s.store_name
+    srName: s.sr_name, warehouseCode: s.warehouse_code, storeName: s.store_name,
+    loginKey: key
   };
 });
 
@@ -509,12 +541,13 @@ function doLogout() {
 function openSwitchModal() {
   const list = document.getElementById('sw-list');
   const adminAccounts = [
-    { key:'OFFICE',    label:'總公司物流部', sublabel:'管理員 · 全權限', isStore:false },
+    { key:'ADMIN',     label:'總公司物流部', sublabel:'管理員 · 全權限', isStore:false },
     { key:'WAREHOUSE', label:'總部倉庫',     sublabel:'管理員 · 全權限', isStore:false },
   ];
-  const storeAccounts = STORES_DATA.map(s => ({
-    key: s.sr_name.toUpperCase(), label: s.store_name, sublabel: s.sr_name + ' · ' + s.warehouse_code, isStore: true
-  }));
+  const storeAccounts = STORES_DATA.map(s => {
+    const key = s.sr_name.toUpperCase() === 'OFFICE' ? 'OFFICE' : s.sr_name.toUpperCase();
+    return { key, label: s.store_name, sublabel: s.sr_name + ' · ' + s.warehouse_code, isStore: true };
+  });
 
   let html = '<div class="sw-section">管理員</div>';
   adminAccounts.forEach(a => {
@@ -559,7 +592,7 @@ function initUI() {
       {id:'overview',   label:'總覽',         icon:homeIco()},
       {id:'inventory',  label:'庫存管理',      icon:boxIco()},
       {id:'usage',      label:'月使用量分析',  icon:chartIco()},
-      {id:'records',    label:'訂購紀錄',      icon:listIco()},
+      {id:'records',    label:'門市訂購紀錄',  icon:listIco()},
       {id:'receiving',  label:'入庫作業',      icon:inboxIco()},
     ];
   } else {
@@ -579,18 +612,28 @@ function initUI() {
 
 // ── HELPERS ───────────────────────────────────
 function avgMonthly(item) {
-  const vals = Object.values(item.monthly_usage).filter(v => v > 0);
-  if (!vals.length) return 0;
-  return vals.reduce((a,b) => a+b, 0) / vals.length;
+  // 分母用 MONTHS_LIST 總月份數（含 0 的月份），反映真實月均消耗
+  const total = MONTHS_LIST.reduce((a, m) => a + (item.monthly_usage[m] || 0), 0);
+  if (!MONTHS_LIST.length) return 0;
+  return total / MONTHS_LIST.length;
+}
+function effectiveStock(item) {
+  // 可用庫存 = 現有庫存 + 待入庫 (on order)
+  return (item.stock || 0) + (item.on_order || 0);
 }
 function safeQty(item) { return Math.round(avgMonthly(item) * 4); }
 function stockStatus(item) {
-  const sq = safeQty(item);
-  if (!sq) return { status:'ok', pct:100, label:'無用量', cls:'ok-tag' };
-  const p = Math.round((item.stock / sq) * 100);
-  if (p <= 0) return { status:'danger', pct:0,  label:'庫存不足', cls:'danger-tag' };
-  if (p < 100) return { status:'low',   pct:p,  label:'偏低',    cls:'warn-tag' };
-  return { status:'ok', pct:Math.min(p,200), label:'正常', cls:'ok-tag' };
+  const avg = avgMonthly(item);
+  if (!avg) return { status:'ok', pct:100, label:'無用量', cls:'ok-tag' };
+  const monthsLeft = effectiveStock(item) / avg;
+  // 三個等級：
+  // 正常   ≥ 4 個月（高於安全水位）
+  // 需叫貨  1 ~ 4 個月（低於安全水位，但還沒斷貨，現在下單還來得及）
+  // 緊急   < 1 個月（快斷貨，立即處理）
+  const pct = Math.round((monthsLeft / 4) * 100);
+  if (monthsLeft >= 4)  return { status:'ok',     pct:Math.min(pct,200), label:'正常',   cls:'ok-tag',     months: monthsLeft.toFixed(1) };
+  if (monthsLeft >= 1)  return { status:'low',    pct,                   label:'需叫貨', cls:'warn-tag',   months: monthsLeft.toFixed(1) };
+  return                       { status:'danger', pct:Math.max(0,pct),   label:'緊急補貨', cls:'danger-tag', months: monthsLeft.toFixed(1) };
 }
 function lowItems() { return items.filter(i => stockStatus(i).status !== 'ok'); }
 function toast(msg, type='') {
@@ -628,7 +671,7 @@ function showView(v) {
   document.getElementById('view-'+v)?.classList.add('active');
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
   document.getElementById('nav-'+v)?.classList.add('active');
-  const titles = { overview:'總覽', inventory:'庫存管理', usage:'月使用量分析', order:'新增訂購', 'my-orders':'我的訂單', records:'訂購紀錄', receiving:'入庫作業' };
+  const titles = { overview:'總覽', inventory:'庫存管理', usage:'月使用量分析', order:'新增訂購', 'my-orders':'我的訂單', records:'門市訂購紀錄', receiving:'入庫作業' };
   document.getElementById('page-title').textContent = titles[v] || v;
   if(v==='overview')  renderOverview();
   if(v==='inventory') renderInv();
@@ -677,7 +720,8 @@ function renderInv() {
   if (!list.length) { tbody.innerHTML = '<tr><td colspan="8" class="empty">無符合品項</td></tr>'; return; }
   tbody.innerHTML = list.map(item => {
     const s = stockStatus(item); const sq = safeQty(item);
-    return `<tr><td class="mono text3">${item.id}</td><td><div style="font-weight:500">${item.name}</div>${item.moq?`<div class="td-sub">${item.moq}</div>`:''}</td><td class="text3">${item.unit}</td><td class="td-r mono">${item.stock}</td><td class="td-r mono text3">${item.on_order||0}</td><td class="td-r mono text3">${sq||'—'}</td><td><div class="level-wrap"><div class="level-bar"><div class="lf ${s.status}" style="width:${Math.min(100,Math.max(2,s.pct))}%"></div></div><span class="badge ${s.cls}">${s.label}</span></div></td><td>${isA?`<button class="btn btn-outline btn-sm" onclick="openEditItem('${item.id}')">編輯</button>`:''}</td></tr>`;
+    const mlabel = s.months ? `<span style="font-size:11px;color:var(--text3);margin-left:5px">${s.months}個月</span>` : '';
+    return `<tr><td class="mono text3">${item.id}</td><td><div style="font-weight:500">${item.name}</div>${item.moq?`<div class="td-sub">${item.moq}</div>`:''}</td><td class="text3">${item.unit}</td><td class="td-r mono">${item.stock}</td><td class="td-r mono text3">${item.on_order||0}</td><td class="td-r mono text3">${sq||'—'}</td><td><div class="level-wrap"><div class="level-bar"><div class="lf ${s.status}" style="width:${Math.min(100,Math.max(2,s.pct))}%"></div></div><span class="badge ${s.cls}">${s.label}</span>${mlabel}</div></td><td>${isA?`<button class="btn btn-outline btn-sm" onclick="openEditItem('${item.id}')">編輯</button>`:''}</td></tr>`;
   }).join('');
 }
 function setInvCat(c) { invCatFilter=c; renderInv(); }
@@ -695,12 +739,12 @@ function renderUsage() {
   chips.innerHTML = CATS.map(c => `<button class="chip ${c===usageCatFilter?'active':''}" onclick="setUsageCat('${c}')">${c}</button>`).join('');
   const q = document.getElementById('usage-q').value.toLowerCase();
   let list = items.filter(i => (usageCatFilter==='全部'||i.cat===usageCatFilter) && (i.name.toLowerCase().includes(q)||i.id.includes(q)));
-  document.getElementById('usage-thead').innerHTML = '<tr><th>貨號</th><th style="min-width:180px">品名</th><th class="r">現有</th><th class="r">安全水位</th><th class="r">月均</th><th class="r">剩餘月數</th>' + MONTHS.map(m=>'<th class="r">'+m+'</th>').join('') + '</tr>';
+  document.getElementById('usage-thead').innerHTML = '<tr><th>貨號</th><th style="min-width:180px">品名</th><th class="r">現有</th><th class="r">安全水位</th><th class="r">月均</th><th class="r">剩餘月數</th>' + MONTHS_LIST.map(m=>'<th class="r">'+m+'</th>').join('') + '</tr>';
   document.getElementById('usage-body').innerHTML = list.map(item => {
     const sq=safeQty(item); const avg=avgMonthly(item);
-    const ml = avg>0 ? (item.stock/avg).toFixed(1) : '∞';
     const s = stockStatus(item);
-    return '<tr><td class="mono text3" style="font-size:12px">'+item.id+'</td><td class="name-col">'+item.name+'</td><td class="uc '+(item.stock>0?'has':'zero')+'">'+item.stock+'</td><td class="uc text3">'+(sq||'—')+'</td><td class="uc text3">'+(avg>0?avg.toFixed(1):'—')+'</td><td class="uc"><span class="badge '+s.cls+'">'+ml+'</span></td>'+MONTHS.map(m=>{const v=item.monthly_usage[m]||0;return '<td class="uc '+(v>0?'has':'zero')+'">'+(v>0?v:'—')+'</td>';}).join('')+'</tr>';
+    const ml = s.months || (avg>0 ? (effectiveStock(item)/avg).toFixed(1) : '∞');
+    return '<tr><td class="mono text3" style="font-size:12px">'+item.id+'</td><td class="name-col">'+item.name+'</td><td class="uc '+(item.stock>0?'has':'zero')+'">'+item.stock+'</td><td class="uc text3">'+(sq||'—')+'</td><td class="uc text3">'+(avg>0?avg.toFixed(1):'—')+'</td><td class="uc"><span class="badge '+s.cls+'">'+ml+'</span></td>'+MONTHS_LIST.map(m=>{const v=item.monthly_usage[m]||0;return '<td class="uc '+(v>0?'has':'zero')+'">'+(v>0?v:'—')+'</td>';}).join('')+'</tr>';
   }).join('');
 }
 function setUsageCat(c) { usageCatFilter=c; renderUsage(); }
@@ -872,15 +916,78 @@ function deleteOrderItem(idx) {
 
 function addOrderItem() {
   const o = orders.find(x=>x.id===editingOrderId); if(!o) return;
-  const itemId = prompt('請輸入要新增的貨號：');
-  if (!itemId) return;
-  const found = items.find(i => i.id === itemId.trim());
-  if (!found) { toast('找不到此貨號','err'); return; }
-  const qty = parseInt(prompt('數量：'));
-  if (!qty || qty <= 0) return;
-  o.items.push({id:found.id, name:found.name, qty});
+
+  // 若已有新增列，先移除
+  const existing = document.getElementById('add-item-row');
+  if (existing) { existing.remove(); return; }
+
+  const container = document.getElementById('edit-items-list');
+  const row = document.createElement('div');
+  row.id = 'add-item-row';
+  row.style.cssText = 'padding:10px 0 4px;border-top:1px dashed var(--border2);margin-top:8px';
+  row.innerHTML = `
+    <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">新增品項</div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <div style="position:relative;flex:1;min-width:180px">
+        <input id="add-item-q" class="fi" placeholder="輸入貨號或品名搜尋..." oninput="showAddItemResults()" autocomplete="off" style="width:100%">
+        <div id="add-item-results" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r-sm);box-shadow:var(--shadow-md);z-index:300;max-height:200px;overflow-y:auto"></div>
+      </div>
+      <input id="add-item-qty" type="number" class="fi" placeholder="數量" min="1" value="1" style="width:80px">
+      <button class="btn btn-primary btn-sm" onclick="confirmAddItem()">確認新增</button>
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('add-item-row').remove()">取消</button>
+    </div>
+    <div id="add-item-selected" style="font-size:12px;color:var(--accent);margin-top:6px;display:none"></div>
+  `;
+  container.appendChild(row);
+  document.getElementById('add-item-q').focus();
+}
+
+let selectedAddItem = null;
+
+function showAddItemResults() {
+  const q = document.getElementById('add-item-q').value.toLowerCase().trim();
+  const box = document.getElementById('add-item-results');
+  selectedAddItem = null;
+  document.getElementById('add-item-selected').style.display = 'none';
+  if (!q) { box.style.display='none'; return; }
+  const matches = items.filter(i =>
+    i.name.toLowerCase().includes(q) || i.id.toLowerCase().includes(q)
+  ).slice(0,8);
+  if (!matches.length) { box.style.display='none'; return; }
+  box.style.display = 'block';
+  box.innerHTML = matches.map(i =>
+    `<div onclick="selectAddItem('${i.id}')" style="padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background=''">
+      <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);width:70px;flex-shrink:0">${i.id}</span>
+      <span>${i.name}</span>
+    </div>`
+  ).join('');
+}
+
+function selectAddItem(id) {
+  const item = items.find(i=>i.id===id); if(!item) return;
+  selectedAddItem = item;
+  document.getElementById('add-item-q').value = item.name;
+  document.getElementById('add-item-results').style.display = 'none';
+  const sel = document.getElementById('add-item-selected');
+  sel.textContent = '已選：' + item.id + ' ' + item.name;
+  sel.style.display = 'block';
+}
+
+function confirmAddItem() {
+  const o = orders.find(x=>x.id===editingOrderId); if(!o) return;
+  if (!selectedAddItem) {
+    // Try matching by id from input
+    const q = document.getElementById('add-item-q').value.trim();
+    selectedAddItem = items.find(i => i.id === q || i.name === q);
+  }
+  if (!selectedAddItem) { toast('請先從搜尋結果選擇品項','err'); return; }
+  const qty = parseInt(document.getElementById('add-item-qty').value);
+  if (!qty || qty <= 0) { toast('請輸入有效數量','err'); return; }
+  o.items.push({id:selectedAddItem.id, name:selectedAddItem.name, qty});
+  selectedAddItem = null;
+  document.getElementById('add-item-row')?.remove();
   renderOrderDetailBody(o);
-  toast('已新增 '+found.name,'ok');
+  toast('已新增 ' + o.items[o.items.length-1].name, 'ok');
 }
 
 function advanceOrder(id) {
@@ -909,6 +1016,60 @@ function confirmRecv() {
   items.forEach(item=>{const el=document.getElementById('rq-'+item.id);const qty=parseInt(el?.value)||0;if(qty>0){item.stock+=qty;n++;}});
   if(!n){toast('請輸入至少一項入庫數量','err');return;}
   toast('已入庫 '+n+' 項商品','ok'); renderReceiving(); renderOverview();
+}
+
+// ── ADD MONTHLY USAGE ─────────────────────────
+function openAddMonthModal() {
+  // Pre-fill with next month after the last in MONTHS_LIST
+  const last = MONTHS_LIST[MONTHS_LIST.length - 1];
+  const [ly, lm] = last.split('-').map(Number);
+  const nm = lm === 12 ? 1 : lm + 1;
+  const ny = lm === 12 ? ly + 1 : ly;
+  const nextMonth = ny + '-' + String(nm).padStart(2,'0');
+  document.getElementById('new-month-val').value = nextMonth;
+  document.getElementById('add-month-title').textContent = '新增月使用量';
+
+  // Render input rows for all items
+  const rows = document.getElementById('add-month-rows');
+  rows.innerHTML = items.map(item => `
+    <div style="display:grid;grid-template-columns:80px 1fr 90px;gap:8px;align-items:center;padding:7px 20px;border-bottom:1px solid var(--border)">
+      <span class="mono text3" style="font-size:11px">${item.id}</span>
+      <span style="font-size:13px">${item.name}</span>
+      <input type="number" min="0" placeholder="0" class="fi" id="mu-${item.id}"
+        style="text-align:center;padding:5px 7px;font-family:'DM Mono',monospace">
+    </div>`).join('');
+
+  document.getElementById('modal-add-month').classList.add('open');
+}
+
+function confirmAddMonth() {
+  const monthVal = document.getElementById('new-month-val').value;
+  if (!monthVal) { toast('請選擇月份','err'); return; }
+
+  // Validate: must be after the last month or not already exist
+  if (MONTHS_LIST.includes(monthVal)) { toast('此月份已存在，請選擇其他月份','err'); return; }
+
+  // Add month to MONTHS_LIST in chronological order
+  MONTHS_LIST.push(monthVal);
+  MONTHS_LIST.sort();
+
+  // Write usage values to each item
+  let filled = 0;
+  items.forEach(item => {
+    const el = document.getElementById('mu-' + item.id);
+    const val = parseInt(el?.value) || 0;
+    item.monthly_usage[monthVal] = val;
+    if (val > 0) filled++;
+  });
+
+  closeModal('modal-add-month');
+
+  // Re-render all affected views
+  renderUsage();
+  renderInv();      // safeQty / stockStatus updated
+  renderOverview(); // alert count updated
+
+  toast(`已新增 ${monthVal} 月份，${filled} 項有用量記錄`, 'ok');
 }
 
 // ── ICONS ────────────────────────────────────
