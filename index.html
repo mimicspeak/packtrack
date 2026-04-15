@@ -47,7 +47,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .avatar{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .account-name{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .account-role{font-size:11px;color:var(--text3)}
-.switch-icon{font-size:11px;color:var(--text3);flex-shrink:0}
+.switch-icon{flex-shrink:0;width:22px;height:22px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.switch-icon svg{width:12px;height:12px;stroke:#fff;fill:none;stroke-width:2.5}
 nav{padding:8px 10px;flex:1}
 .nav-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--r-sm);cursor:pointer;color:var(--text2);font-size:13px;transition:background .12s,color .12s;user-select:none}
 .nav-item:hover{background:var(--surface2);color:var(--text)}
@@ -156,6 +157,8 @@ tbody td{padding:10px 12px;font-size:13px}
 .recv-qty{width:80px;padding:5px 7px;border:1px solid var(--border2);border-radius:var(--r-sm);font-family:'DM Mono',monospace;font-size:13px;text-align:center;outline:none;background:var(--surface)}
 .recv-qty:focus{border-color:var(--accent)}
 
+.req{color:#C4530A;margin-left:2px;font-weight:700}
+
 /* MODAL */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.28);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
 .overlay.open{display:flex}
@@ -207,13 +210,13 @@ tbody td{padding:10px 12px;font-size:13px}
     <div class="login-logo">GJ PackTrack</div>
     <div class="login-sub">包材庫存管理系統 · 請登入</div>
     <label class="login-label" for="li-user">SR Name / 帳號</label>
-    <input class="login-input" id="li-user" placeholder="e.g. TPSKMHY 或 MANAGER" autocomplete="off">
+    <input class="login-input" id="li-user" placeholder="e.g. TPSKMHY 或 OFFICE" autocomplete="off">
     <label class="login-label" for="li-pass">密碼</label>
     <input class="login-input" id="li-pass" type="password" placeholder="輸入密碼">
     <button class="login-btn" onclick="doLogin()">登入</button>
     <div class="login-err" id="login-err">帳號或密碼錯誤，請再試一次。</div>
     <div class="login-hint">
-      管理員：MANAGER / gjlogistics<br>
+      管理員：OFFICE / gjlogistics<br>
       倉庫：WAREHOUSE / gjwarehouse<br>
       門市：SR Name（如 TPSKMHY）/ Warehouse Code 小寫（如 gtwr04a）
     </div>
@@ -228,7 +231,7 @@ tbody td{padding:10px 12px;font-size:13px}
       <div class="avatar" id="av">?</div>
       <div><div class="account-name" id="av-name">-</div><div class="account-role" id="av-role"></div></div>
     </div>
-    <span class="switch-icon">⇅</span>
+    <span class="switch-icon"><svg viewBox="0 0 24 24"><path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg></span>
   </div>
   <nav id="nav-area"></nav>
   <div class="logout-area"><button class="logout-link" onclick="doLogout()">← 登出</button></div>
@@ -393,20 +396,42 @@ tbody td{padding:10px 12px;font-size:13px}
     <div class="modal-hdr"><div class="modal-title" id="item-modal-title">新增品項</div><button class="modal-close" onclick="closeModal('modal-item')">×</button></div>
     <div class="modal-body">
       <div class="fg-row">
-        <div class="fg"><label>貨號</label><input class="fi" id="it-code"></div>
-        <div class="fg"><label>單位</label><input class="fi" id="it-unit" placeholder="PCS / 張 / 捲"></div>
+        <div class="fg"><label>貨號<span class="req">*</span></label><input class="fi" id="it-code"></div>
+        <div class="fg"><label>單位<span class="req">*</span></label><input class="fi" id="it-unit" placeholder="PCS / 張 / 捲"></div>
       </div>
-      <div class="fg"><label>品名</label><input class="fi" id="it-name"></div>
+      <div class="fg"><label>品名<span class="req">*</span></label><input class="fi" id="it-name"></div>
       <div class="fg-row">
-        <div class="fg"><label>類別</label><select class="fi" id="it-cat" style="appearance:auto"></select></div>
-        <div class="fg"><label>供應商</label><input class="fi" id="it-supplier"></div>
+        <div class="fg"><label>類別<span class="req">*</span></label>
+          <select class="fi" id="it-cat" style="appearance:auto">
+            <option value="">— 請選擇 —</option>
+            <option>珠寶盒</option>
+            <option>購物袋</option>
+            <option>說明卡</option>
+            <option>拭銀布</option>
+            <option>氣泡袋</option>
+            <option>包裝材料</option>
+            <option>緞帶</option>
+            <option>手套</option>
+            <option>信封文件</option>
+            <option>由任袋</option>
+            <option>紙箱</option>
+            <option>絨布袋</option>
+            <option>腰帶/腰</option>
+            <option>說明卡</option>
+            <option>餐具盒</option>
+            <option>鉢盒</option>
+            <option>清潔保養</option>
+            <option>其他</option>
+          </select>
+        </div>
+        <div class="fg"><label>供應商<span class="req">*</span></label><input class="fi" id="it-supplier"></div>
       </div>
       <div class="fg-row">
-        <div class="fg"><label>現有庫存</label><input type="number" class="fi" id="it-stock" min="0"></div>
-        <div class="fg"><label>待入庫 (on order)</label><input type="number" class="fi" id="it-onorder" min="0"></div>
+        <div class="fg"><label>現有庫存<span class="req">*</span></label><input type="number" class="fi" id="it-stock" min="0"></div>
+        <div class="fg"><label>待入庫 (on order)<span class="req">*</span></label><input type="number" class="fi" id="it-onorder" min="0"></div>
       </div>
       <div class="fg-row">
-        <div class="fg"><label>MOQ / 箱裝</label><input class="fi" id="it-moq" placeholder="e.g. 5PCS/CTN"></div>
+        <div class="fg"><label>MOQ / 箱裝<span class="req">*</span></label><input class="fi" id="it-moq" placeholder="e.g. 5PCS/CTN"></div>
         <div class="fg"><label>備註</label><input class="fi" id="it-remark"></div>
       </div>
     </div>
@@ -447,7 +472,7 @@ const CATS = ['全部', ...new Set(items.map(i => i.cat || '其他'))];
 
 // ── ACCOUNTS ──────────────────────────────────
 const ACCOUNTS = {
-  'MANAGER':   { role:'admin',     pw:'gjlogistics',  displayName:'總公司物流部', role_label:'管理員 · 全權限' },
+  'OFFICE':    { role:'admin',     pw:'gjlogistics',  displayName:'總公司物流部', role_label:'管理員 · 全權限' },
   'WAREHOUSE': { role:'admin',     pw:'gjwarehouse',  displayName:'總部倉庫',     role_label:'管理員 · 全權限' },
 };
 STORES_DATA.forEach(s => {
@@ -484,7 +509,7 @@ function doLogout() {
 function openSwitchModal() {
   const list = document.getElementById('sw-list');
   const adminAccounts = [
-    { key:'MANAGER',   label:'總公司物流部', sublabel:'管理員 · 全權限', isStore:false },
+    { key:'OFFICE',    label:'總公司物流部', sublabel:'管理員 · 全權限', isStore:false },
     { key:'WAREHOUSE', label:'總部倉庫',     sublabel:'管理員 · 全權限', isStore:false },
   ];
   const storeAccounts = STORES_DATA.map(s => ({
@@ -510,7 +535,8 @@ function openSwitchModal() {
     </div>`;
   });
   list.innerHTML = html;
-  openModal('modal-switch');
+  // directly open the modal overlay (no recursive call)
+  document.getElementById('modal-switch').classList.add('open');
 }
 function switchTo(key) {
   const acc = ACCOUNTS[key];
@@ -680,14 +706,11 @@ function renderUsage() {
 function setUsageCat(c) { usageCatFilter=c; renderUsage(); }
 
 // ── ITEM MODAL ───────────────────────────────
-function populateCatSelect() {
-  document.getElementById('it-cat').innerHTML = CATS.filter(c=>c!=='全部').map(c=>`<option>${c}</option>`).join('');
-}
 function openAddItem() {
   editingItemId = null;
   document.getElementById('item-modal-title').textContent = '新增品項';
-  populateCatSelect();
   ['it-code','it-name','it-unit','it-supplier','it-moq','it-remark'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('it-cat').value = '';
   document.getElementById('it-stock').value=0; document.getElementById('it-onorder').value=0;
   document.getElementById('modal-item').classList.add('open');
 }
@@ -695,11 +718,10 @@ function openEditItem(id) {
   const item = items.find(i=>i.id===id); if(!item) return;
   editingItemId = id;
   document.getElementById('item-modal-title').textContent = '編輯品項';
-  populateCatSelect();
   document.getElementById('it-code').value     = item.id;
   document.getElementById('it-name').value     = item.name;
   document.getElementById('it-unit').value     = item.unit;
-  document.getElementById('it-cat').value      = item.cat||'其他';
+  document.getElementById('it-cat').value      = item.cat||'';
   document.getElementById('it-supplier').value = item.supplier||'';
   document.getElementById('it-stock').value    = item.stock;
   document.getElementById('it-onorder').value  = item.on_order||0;
@@ -708,11 +730,14 @@ function openEditItem(id) {
   document.getElementById('modal-item').classList.add('open');
 }
 function saveItem() {
-  const code=document.getElementById('it-code').value.trim();
-  const name=document.getElementById('it-name').value.trim();
-  const unit=document.getElementById('it-unit').value.trim();
-  if(!code||!name||!unit){toast('請填寫必要欄位','err');return;}
-  const obj={id:code,name,unit,cat:document.getElementById('it-cat').value,supplier:document.getElementById('it-supplier').value,stock:parseInt(document.getElementById('it-stock').value)||0,on_order:parseInt(document.getElementById('it-onorder').value)||0,moq:document.getElementById('it-moq').value,remark:document.getElementById('it-remark').value,monthly_usage:editingItemId?(items.find(i=>i.id===editingItemId)?.monthly_usage||{}):{} };
+  const code     = document.getElementById('it-code').value.trim();
+  const name     = document.getElementById('it-name').value.trim();
+  const unit     = document.getElementById('it-unit').value.trim();
+  const cat      = document.getElementById('it-cat').value;
+  const supplier = document.getElementById('it-supplier').value.trim();
+  const moq      = document.getElementById('it-moq').value.trim();
+  if (!code||!name||!unit||!cat||!supplier||!moq) { toast('請填寫所有必填欄位（標 * 項目）','err'); return; }
+  const obj={id:code,name,unit,cat,supplier,stock:parseInt(document.getElementById('it-stock').value)||0,on_order:parseInt(document.getElementById('it-onorder').value)||0,moq,remark:document.getElementById('it-remark').value,monthly_usage:editingItemId?(items.find(i=>i.id===editingItemId)?.monthly_usage||{}):{} };
   if(editingItemId){const idx=items.findIndex(i=>i.id===editingItemId);if(idx>=0)items[idx]=obj;toast('品項已更新','ok');}
   else{if(items.find(i=>i.id===code)){toast('貨號已存在','err');return;}items.push(obj);toast('品項已新增','ok');}
   closeModal('modal-item'); renderInv();
