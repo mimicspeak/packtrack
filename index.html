@@ -3,711 +3,343 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PackTrack — 包材庫存管理</title>
+<title>GJ PackTrack — 包材庫存管理</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --bg: #F5F3EF;
-    --surface: #FFFFFF;
-    --surface2: #F0EDE8;
-    --border: #E2DED8;
-    --border2: #CBC6BE;
-    --text: #1A1816;
-    --text2: #6B6560;
-    --text3: #A09A93;
-    --accent: #2C5F3F;
-    --accent-light: #EAF2EC;
-    --accent-text: #1E4530;
-    --warn: #C4530A;
-    --warn-light: #FEF0E7;
-    --warn-text: #8B3A07;
-    --danger: #B91C1C;
-    --danger-light: #FEF2F2;
-    --ok: #15803D;
-    --ok-light: #F0FDF4;
-    --low: #D97706;
-    --low-light: #FFFBEB;
-    --sidebar-w: 220px;
-    --radius: 10px;
-    --radius-sm: 6px;
-    --shadow: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
-    --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
-  }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    font-size: 14px;
-    line-height: 1.5;
-    min-height: 100vh;
-    display: flex;
-  }
-
-  /* ── SIDEBAR ── */
-  .sidebar {
-    width: var(--sidebar-w);
-    min-height: 100vh;
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    top: 0; left: 0;
-    z-index: 100;
-  }
-
-  .sidebar-brand {
-    padding: 22px 20px 18px;
-    border-bottom: 1px solid var(--border);
-  }
-  .brand-name {
-    font-size: 15px;
-    font-weight: 600;
-    letter-spacing: -0.3px;
-    color: var(--text);
-  }
-  .brand-sub {
-    font-size: 11px;
-    color: var(--text3);
-    margin-top: 2px;
-    font-weight: 400;
-  }
-
-  .sidebar-account {
-    padding: 14px 20px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .account-avatar {
-    width: 30px; height: 30px;
-    border-radius: 50%;
-    background: var(--accent);
-    color: #fff;
-    font-size: 11px;
-    font-weight: 600;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
-  .account-info { min-width: 0; }
-  .account-name { font-size: 12px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .account-role { font-size: 11px; color: var(--text3); }
-
-  .sidebar-nav { padding: 10px 12px; flex: 1; }
-  .nav-section-label {
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    color: var(--text3);
-    text-transform: uppercase;
-    padding: 10px 8px 5px;
-  }
-  .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 10px;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    color: var(--text2);
-    font-size: 13px;
-    font-weight: 400;
-    transition: background 0.15s, color 0.15s;
-    position: relative;
-    user-select: none;
-  }
-  .nav-item:hover { background: var(--surface2); color: var(--text); }
-  .nav-item.active { background: var(--accent-light); color: var(--accent-text); font-weight: 500; }
-  .nav-item .nav-icon { width: 16px; height: 16px; opacity: 0.7; flex-shrink: 0; }
-  .nav-item.active .nav-icon { opacity: 1; }
-  .nav-badge {
-    margin-left: auto;
-    background: var(--warn);
-    color: #fff;
-    font-size: 10px;
-    font-weight: 600;
-    padding: 1px 6px;
-    border-radius: 10px;
-    line-height: 16px;
-  }
-  .nav-badge.green { background: var(--accent); }
-
-  /* ── MAIN ── */
-  .main {
-    margin-left: var(--sidebar-w);
-    flex: 1;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .topbar {
-    height: 56px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    padding: 0 28px;
-    gap: 16px;
-    position: sticky;
-    top: 0;
-    z-index: 50;
-  }
-  .page-title {
-    font-size: 15px;
-    font-weight: 600;
-    letter-spacing: -0.2px;
-    flex: 1;
-  }
-  .topbar-actions { display: flex; gap: 8px; align-items: center; }
-
-  .btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 7px 14px;
-    border-radius: var(--radius-sm);
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.15s;
-    border: none;
-    font-family: inherit;
-  }
-  .btn-primary { background: var(--accent); color: #fff; }
-  .btn-primary:hover { background: var(--accent-text); }
-  .btn-outline { background: transparent; color: var(--text2); border: 1px solid var(--border2); }
-  .btn-outline:hover { background: var(--surface2); color: var(--text); }
-  .btn-sm { padding: 5px 10px; font-size: 12px; }
-  .btn-danger { background: var(--danger-light); color: var(--danger); border: 1px solid #FECACA; }
-  .btn-danger:hover { background: #FEE2E2; }
-
-  .content { padding: 24px 28px; flex: 1; }
-
-  /* ── VIEWS ── */
-  .view { display: none; }
-  .view.active { display: block; }
-
-  /* ── OVERVIEW ── */
-  .stat-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 14px;
-    margin-bottom: 24px;
-  }
-  .stat-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 18px 20px;
-    box-shadow: var(--shadow);
-  }
-  .stat-label { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
-  .stat-value { font-size: 28px; font-weight: 600; letter-spacing: -1px; color: var(--text); line-height: 1; }
-  .stat-sub { font-size: 12px; color: var(--text3); margin-top: 4px; }
-  .stat-card.warn { border-color: #FED7AA; background: var(--warn-light); }
-  .stat-card.warn .stat-value { color: var(--warn); }
-  .stat-card.warn .stat-label { color: var(--warn-text); }
-
-  .section-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 14px;
-  }
-  .section-title { font-size: 13px; font-weight: 600; color: var(--text); }
-
-  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-
-  /* ── ALERTS TABLE ── */
-  .alert-row {
-    display: flex; align-items: center; gap: 12px;
-    padding: 11px 16px;
-    border-bottom: 1px solid var(--border);
-    font-size: 13px;
-  }
-  .alert-row:last-child { border-bottom: none; }
-  .alert-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-  .alert-dot.danger { background: var(--danger); }
-  .alert-dot.warn { background: var(--low); }
-  .alert-name { flex: 1; font-weight: 500; }
-  .alert-stock { color: var(--text2); font-family: 'DM Mono', monospace; font-size: 12px; }
-  .alert-safe { color: var(--text3); font-size: 12px; }
-  .alert-tag {
-    padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500;
-  }
-  .alert-tag.danger { background: var(--danger-light); color: var(--danger); }
-  .alert-tag.warn { background: var(--low-light); color: var(--low); }
-
-  /* ── RECENT ORDERS ── */
-  .order-row {
-    display: flex; align-items: center; gap: 12px;
-    padding: 10px 16px;
-    border-bottom: 1px solid var(--border);
-    font-size: 13px;
-  }
-  .order-row:last-child { border-bottom: none; }
-  .order-id { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text3); width: 70px; }
-  .order-store { font-weight: 500; flex: 1; }
-  .order-date { color: var(--text3); font-size: 12px; }
-  .status-badge {
-    padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500;
-  }
-  .status-badge.pending { background: var(--low-light); color: var(--low); }
-  .status-badge.processing { background: #EFF6FF; color: #1D4ED8; }
-  .status-badge.done { background: var(--ok-light); color: var(--ok); }
-  .status-badge.confirm { background: var(--warn-light); color: var(--warn); }
-
-  /* ── CARD ── */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    overflow: hidden;
-  }
-
-  /* ── INVENTORY TABLE ── */
-  .toolbar {
-    display: flex; align-items: center; gap: 10px;
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--border);
-    flex-wrap: wrap;
-  }
-  .search-box {
-    display: flex; align-items: center; gap: 6px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 6px 10px;
-    min-width: 200px;
-  }
-  .search-box input {
-    border: none; background: transparent; outline: none;
-    font-family: inherit; font-size: 13px; color: var(--text);
-    width: 100%;
-  }
-  .search-box input::placeholder { color: var(--text3); }
-  .filter-chips { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
-  .chip {
-    padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500;
-    cursor: pointer; transition: all 0.15s;
-    border: 1px solid var(--border);
-    color: var(--text2); background: transparent;
-    font-family: inherit;
-  }
-  .chip:hover { background: var(--surface2); }
-  .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-
-  table { width: 100%; border-collapse: collapse; }
-  thead th {
-    text-align: left; padding: 10px 14px;
-    font-size: 11px; font-weight: 600; color: var(--text3);
-    text-transform: uppercase; letter-spacing: 0.06em;
-    border-bottom: 1px solid var(--border);
-    white-space: nowrap;
-    background: var(--surface2);
-  }
-  tbody tr {
-    border-bottom: 1px solid var(--border);
-    transition: background 0.1s;
-  }
-  tbody tr:last-child { border-bottom: none; }
-  tbody tr:hover { background: var(--surface2); }
-  tbody td { padding: 11px 14px; font-size: 13px; }
-  .td-code { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text3); }
-  .td-name { font-weight: 500; }
-  .td-sub { font-size: 11px; color: var(--text3); }
-  .td-num { font-family: 'DM Mono', monospace; font-size: 13px; }
-
-  /* stock level bar */
-  .level-wrap { display: flex; align-items: center; gap: 8px; }
-  .level-bar { width: 80px; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; flex-shrink: 0; }
-  .level-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
-  .level-fill.ok { background: var(--ok); }
-  .level-fill.low { background: var(--low); }
-  .level-fill.danger { background: var(--danger); }
-  .level-text { font-size: 11px; color: var(--text3); white-space: nowrap; }
-
-  .cat-pill {
-    display: inline-flex; padding: 2px 7px; border-radius: 4px;
-    font-size: 11px; font-weight: 500;
-    background: var(--surface2); color: var(--text2);
-  }
-
-  /* ── MODAL ── */
-  .modal-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.3);
-    z-index: 200;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(2px);
-  }
-  .modal-overlay.open { display: flex; }
-  .modal {
-    background: var(--surface);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-md);
-    width: 520px;
-    max-width: 95vw;
-    max-height: 90vh;
-    overflow-y: auto;
-  }
-  .modal-header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 18px 22px;
-    border-bottom: 1px solid var(--border);
-  }
-  .modal-title { font-size: 15px; font-weight: 600; }
-  .modal-close { width: 28px; height: 28px; border-radius: 50%; border: none; background: var(--surface2); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text2); font-size: 16px; }
-  .modal-body { padding: 22px; }
-  .modal-footer { padding: 14px 22px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; }
-
-  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .form-group { display: flex; flex-direction: column; gap: 5px; }
-  .form-group.full { grid-column: 1 / -1; }
-  .form-label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; }
-  .form-input, .form-select {
-    padding: 8px 10px;
-    border: 1px solid var(--border2);
-    border-radius: var(--radius-sm);
-    font-family: inherit; font-size: 13px; color: var(--text);
-    background: var(--surface);
-    outline: none; transition: border-color 0.15s;
-  }
-  .form-input:focus, .form-select:focus { border-color: var(--accent); }
-
-  /* ── ORDER FORM ── */
-  .order-table { width: 100%; }
-  .order-table th { background: var(--surface2); font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; padding: 8px 10px; }
-  .order-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); font-size: 13px; }
-  .qty-input {
-    width: 70px; padding: 5px 8px;
-    border: 1px solid var(--border2); border-radius: var(--radius-sm);
-    font-family: 'DM Mono', monospace; font-size: 13px;
-    text-align: center; outline: none; background: var(--surface);
-  }
-  .qty-input:focus { border-color: var(--accent); }
-
-  /* ── RECEIVING ── */
-  .receive-item {
-    display: flex; align-items: center; gap: 12px;
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--border);
-  }
-  .receive-name { flex: 1; font-size: 13px; font-weight: 500; }
-  .receive-current { font-size: 12px; color: var(--text3); width: 60px; text-align: right; }
-  .receive-qty {
-    width: 80px; padding: 6px 8px;
-    border: 1px solid var(--border2); border-radius: var(--radius-sm);
-    font-family: 'DM Mono', monospace; font-size: 13px;
-    text-align: center; outline: none; background: var(--surface);
-  }
-  .receive-qty:focus { border-color: var(--accent); }
-  .receive-after { font-size: 12px; color: var(--accent); width: 60px; text-align: left; font-weight: 500; }
-
-  /* ── ORDERS RECORDS ── */
-  .orders-table td, .orders-table th { padding: 10px 14px; }
-
-  /* ── EMPTY STATE ── */
-  .empty { text-align: center; padding: 40px; color: var(--text3); font-size: 13px; }
-
-  /* ── TOAST ── */
-  .toast {
-    position: fixed; bottom: 24px; right: 24px;
-    background: var(--text); color: #fff;
-    padding: 12px 18px; border-radius: var(--radius-sm);
-    font-size: 13px; font-weight: 500;
-    transform: translateY(80px); opacity: 0;
-    transition: all 0.3s;
-    z-index: 999;
-    box-shadow: var(--shadow-md);
-  }
-  .toast.show { transform: translateY(0); opacity: 1; }
-  .toast.success { background: var(--accent); }
-  .toast.error { background: var(--danger); }
-
-  /* ── ALERT BANNER ── */
-  .alert-banner {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 16px;
-    background: var(--warn-light);
-    border: 1px solid #FED7AA;
-    border-radius: var(--radius-sm);
-    font-size: 13px;
-    margin-bottom: 20px;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .alert-banner:hover { background: #FDE8D0; }
-  .alert-banner-icon { font-size: 14px; }
-  .alert-banner-text { color: var(--warn-text); flex: 1; }
-  .alert-banner-link { color: var(--warn); font-weight: 500; font-size: 12px; text-decoration: none; }
-
-  /* ── SCROLLBAR ── */
-  ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
-
-  /* role gate */
-  .role-gate { display: none; }
-  body.role-store .store-only { display: flex !important; }
-  body.role-manager .manager-only { display: flex !important; }
-
-  .divider { height: 1px; background: var(--border); margin: 16px 0; }
-
-  .inline-num { font-family: 'DM Mono', monospace; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F6F4F0;--surface:#FFFFFF;--surface2:#F0EDE8;--surface3:#E8E4DE;
+  --border:#E2DDD7;--border2:#C8C2BA;
+  --text:#18160F;--text2:#6B6457;--text3:#A09890;
+  --accent:#2A5C42;--accent-bg:#EAF2EC;--accent-text:#1C3E2D;
+  --warn:#C4530A;--warn-bg:#FEF0E7;--warn-text:#8B3A07;
+  --danger:#B91C1C;--danger-bg:#FEF2F2;
+  --ok:#15803D;--ok-bg:#F0FDF4;
+  --low:#D97706;--low-bg:#FFFBEB;
+  --sidebar:220px;--r:10px;--r-sm:6px;
+  --shadow:0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 16px rgba(0,0,0,.10);
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;min-height:100vh;display:flex}
+#login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999}
+.login-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:36px 40px;width:380px;box-shadow:var(--shadow-md)}
+.login-logo{font-size:20px;font-weight:600;letter-spacing:-.5px;margin-bottom:4px}
+.login-sub{font-size:12px;color:var(--text3);margin-bottom:26px}
+.login-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;display:block}
+.login-input{width:100%;padding:9px 11px;border:1px solid var(--border2);border-radius:var(--r-sm);font-family:inherit;font-size:13px;color:var(--text);outline:none;transition:border-color .15s;margin-bottom:12px}
+.login-input:focus{border-color:var(--accent)}
+.login-btn{width:100%;padding:10px;background:var(--accent);color:#fff;border:none;border-radius:var(--r-sm);font-family:inherit;font-size:14px;font-weight:500;cursor:pointer}
+.login-btn:hover{background:var(--accent-text)}
+.login-err{font-size:12px;color:var(--danger);margin-top:8px;display:none}
+.login-hint{font-size:11px;color:var(--text3);margin-top:16px;line-height:1.7;background:var(--surface2);padding:10px 12px;border-radius:var(--r-sm)}
+.sidebar{width:var(--sidebar);min-height:100vh;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100}
+.brand{padding:20px 18px 16px;border-bottom:1px solid var(--border)}
+.brand-name{font-size:15px;font-weight:600;letter-spacing:-.3px}
+.brand-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.account-bar{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px}
+.avatar{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.account-name{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.account-role{font-size:11px;color:var(--text3)}
+nav{padding:8px 10px;flex:1}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--r-sm);cursor:pointer;color:var(--text2);font-size:13px;transition:background .12s,color .12s;user-select:none}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--accent-bg);color:var(--accent-text);font-weight:500}
+.nav-icon{width:15px;height:15px;opacity:.7;flex-shrink:0}
+.nav-item.active .nav-icon{opacity:1}
+.nav-badge{margin-left:auto;background:var(--warn);color:#fff;font-size:10px;font-weight:600;padding:1px 6px;border-radius:10px;line-height:16px}
+.logout-area{padding:12px 18px;border-top:1px solid var(--border)}
+.logout-link{font-size:12px;color:var(--text3);cursor:pointer;background:none;border:none;font-family:inherit}
+.logout-link:hover{color:var(--text)}
+.main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{height:52px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;position:sticky;top:0;z-index:50}
+.page-title{font-size:15px;font-weight:600;letter-spacing:-.2px;flex:1}
+.content{padding:20px 24px;flex:1}
+.view{display:none}.view.active{display:block}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;border-radius:var(--r-sm);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border:none;font-family:inherit}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:var(--accent-text)}
+.btn-outline{background:transparent;color:var(--text2);border:1px solid var(--border2)}.btn-outline:hover{background:var(--surface2);color:var(--text)}
+.btn-sm{padding:4px 9px;font-size:12px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow)}
+.stat-card.alert{border-color:#FED7AA;background:var(--warn-bg)}
+.stat-label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+.stat-value{font-size:26px;font-weight:600;letter-spacing:-1px;line-height:1}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:3px}
+.stat-card.alert .stat-value{color:var(--warn)}
+.stat-card.alert .stat-label{color:var(--warn-text)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.section-title{font-size:13px;font-weight:600}
+.alert-banner{display:flex;align-items:center;gap:10px;padding:9px 14px;background:var(--warn-bg);border:1px solid #FED7AA;border-radius:var(--r-sm);font-size:13px;margin-bottom:18px;cursor:pointer}
+.alert-banner:hover{background:#fde8d0}
+.alert-banner-text{color:var(--warn-text);flex:1}
+.alert-link{color:var(--warn);font-weight:500;font-size:12px}
+.toolbar{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.search-box{display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:5px 9px;min-width:180px}
+.search-box input{border:none;background:transparent;outline:none;font-family:inherit;font-size:13px;color:var(--text);width:100%}
+.search-box input::placeholder{color:var(--text3)}
+.chip{padding:3px 9px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border);color:var(--text2);background:transparent;font-family:inherit;transition:all .12s;white-space:nowrap}
+.chip:hover{background:var(--surface2)}.chip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.chips{display:flex;gap:5px;flex-wrap:wrap;flex:1}
+table{width:100%;border-collapse:collapse}
+thead th{text-align:left;padding:9px 12px;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border);background:var(--surface2);white-space:nowrap}
+thead th.r{text-align:right}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--surface2)}
+tbody td{padding:10px 12px;font-size:13px}
+.mono{font-family:'DM Mono',monospace;font-size:12px}
+.text2{color:var(--text2)}.text3{color:var(--text3)}
+.td-sub{font-size:11px;color:var(--text3)}
+.td-r{text-align:right}
+.badge{padding:2px 7px;border-radius:4px;font-size:11px;font-weight:500;display:inline-block}
+.badge.pending{background:var(--low-bg);color:var(--low)}
+.badge.processing{background:#EFF6FF;color:#1D4ED8}
+.badge.done{background:var(--ok-bg);color:var(--ok)}
+.badge.ok-tag{background:var(--ok-bg);color:var(--ok)}
+.badge.warn-tag{background:var(--low-bg);color:var(--low)}
+.badge.danger-tag{background:var(--danger-bg);color:var(--danger)}
+.level-wrap{display:flex;align-items:center;gap:7px}
+.level-bar{width:72px;height:4px;background:var(--border);border-radius:2px;overflow:hidden;flex-shrink:0}
+.lf{height:100%;border-radius:2px;transition:width .3s}
+.lf.ok{background:var(--ok)}.lf.low{background:var(--low)}.lf.danger{background:var(--danger)}
+.usage-wrap{overflow-x:auto}
+.usage-tbl{min-width:900px}
+.usage-tbl td,.usage-tbl th{padding:8px 10px;font-size:12px;white-space:nowrap}
+.usage-tbl td.name-col{font-size:13px;font-weight:500;white-space:normal;min-width:180px}
+.uc{text-align:right;font-family:'DM Mono',monospace}
+.uc.has{color:var(--text)}.uc.zero{color:var(--border2)}
+.order-info-bar{background:var(--accent-bg);border:1px solid #B6D9C5;border-radius:var(--r-sm);padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--accent-text)}
+.qty-input{width:72px;padding:5px 7px;border:1px solid var(--border2);border-radius:var(--r-sm);font-family:'DM Mono',monospace;font-size:13px;text-align:center;outline:none;background:var(--surface)}
+.qty-input:focus{border-color:var(--accent)}
+.ord-sumbar{padding:14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.recv-row{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--border)}
+.recv-name{flex:1;font-size:13px}
+.recv-sub{font-size:11px;color:var(--text3)}
+.recv-cur,.recv-after{width:56px;text-align:right;font-family:'DM Mono',monospace;font-size:12px}
+.recv-cur{color:var(--text3)}.recv-after{color:var(--accent);font-weight:500}
+.recv-qty{width:80px;padding:5px 7px;border:1px solid var(--border2);border-radius:var(--r-sm);font-family:'DM Mono',monospace;font-size:13px;text-align:center;outline:none;background:var(--surface)}
+.recv-qty:focus{border-color:var(--accent)}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.28);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+.overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow-md);width:500px;max-width:95vw;max-height:90vh;overflow-y:auto}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
+.modal-title{font-size:15px;font-weight:600}
+.modal-close{width:26px;height:26px;border-radius:50%;border:none;background:var(--surface2);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:15px}
+.modal-body{padding:20px}
+.modal-footer{padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+.fg{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.fg-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fg label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em}
+.fi{padding:7px 9px;border:1px solid var(--border2);border-radius:var(--r-sm);font-family:inherit;font-size:13px;color:var(--text);background:var(--surface);outline:none;transition:border-color .15s}
+.fi:focus{border-color:var(--accent)}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--text);color:#fff;padding:10px 16px;border-radius:var(--r-sm);font-size:13px;font-weight:500;transform:translateY(70px);opacity:0;transition:all .28s;z-index:999;box-shadow:var(--shadow-md)}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.ok{background:var(--accent)}.toast.err{background:var(--danger)}
+.oa-row{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--border);font-size:13px}
+.oa-row:last-child{border-bottom:none}
+.oa-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.oa-dot.d{background:var(--danger)}.oa-dot.w{background:var(--low)}
+.oa-name{flex:1;font-weight:500}
+.oa-stock{font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)}
+.oa-safe{font-size:11px;color:var(--text3)}
+.or-row{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--border);font-size:13px;cursor:pointer}
+.or-row:hover{background:var(--surface2)}.or-row:last-child{border-bottom:none}
+.or-id{font-family:'DM Mono',monospace;font-size:12px;color:var(--text3);width:72px}
+.or-store{font-weight:500;flex:1}
+.or-date{font-size:12px;color:var(--text3)}
+.empty{text-align:center;padding:36px;color:var(--text3);font-size:13px}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 </style>
 </head>
 <body>
 
-<!-- ── SIDEBAR ── -->
-<aside class="sidebar">
-  <div class="sidebar-brand">
-    <div class="brand-name">PackTrack</div>
-    <div class="brand-sub">包材庫存管理系統</div>
-  </div>
-  <div class="sidebar-account" id="account-area">
-    <div class="account-avatar" id="av-initials">LM</div>
-    <div class="account-info">
-      <div class="account-name" id="account-name">物流經理</div>
-      <div class="account-role" id="account-role">總部 · 全權限</div>
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">GJ PackTrack</div>
+    <div class="login-sub">包材庫存管理系統 · 請登入</div>
+    <label class="login-label" for="li-user">SR Name / 帳號</label>
+    <input class="login-input" id="li-user" placeholder="e.g. TPSKMHY 或 MANAGER" autocomplete="off">
+    <label class="login-label" for="li-pass">密碼</label>
+    <input class="login-input" id="li-pass" type="password" placeholder="輸入密碼">
+    <button class="login-btn" onclick="doLogin()">登入</button>
+    <div class="login-err" id="login-err">帳號或密碼錯誤，請再試一次。</div>
+    <div class="login-hint">
+      測試帳號：<br>
+      · 物流經理：MANAGER &nbsp;/&nbsp; gjlogistics<br>
+      · 倉庫：WAREHOUSE &nbsp;/&nbsp; gjwarehouse<br>
+      · 門市：SR Name（如 TPSKMHY）&nbsp;/&nbsp; Warehouse Code 小寫（如 gtwr04a）
     </div>
   </div>
-  <nav class="sidebar-nav" id="nav-area">
-    <!-- injected by JS -->
-  </nav>
+</div>
+
+<aside class="sidebar" id="sidebar" style="display:none">
+  <div class="brand"><div class="brand-name">GJ PackTrack</div><div class="brand-sub">包材庫存管理系統</div></div>
+  <div class="account-bar">
+    <div class="avatar" id="av">?</div>
+    <div><div class="account-name" id="av-name">-</div><div class="account-role" id="av-role"></div></div>
+  </div>
+  <nav id="nav-area"></nav>
+  <div class="logout-area"><button class="logout-link" onclick="doLogout()">← 登出</button></div>
 </aside>
 
-<!-- ── MAIN ── -->
-<div class="main">
-  <header class="topbar">
-    <div class="page-title" id="page-title">總覽</div>
-    <div class="topbar-actions">
-      <select class="form-select btn-sm" id="role-switcher" onchange="switchRole(this.value)" style="font-size:12px; padding:5px 8px;">
-        <option value="manager">👤 物流經理</option>
-        <option value="warehouse">🏭 總部倉庫</option>
-        <option value="store">🏪 門市店長（示範）</option>
-      </select>
-    </div>
-  </header>
-
+<div class="main" id="main-area" style="display:none">
+  <header class="topbar"><div class="page-title" id="page-title">總覽</div></header>
   <div class="content">
 
-    <!-- ── VIEW: OVERVIEW ── -->
     <div class="view active" id="view-overview">
-      <div class="alert-banner" id="alert-banner" onclick="showView('inventory')">
-        <span class="alert-banner-icon">⚠</span>
-        <span class="alert-banner-text" id="alert-banner-text">載入中...</span>
-        <span class="alert-banner-link">前往庫存管理 →</span>
+      <div class="alert-banner" id="ov-banner" onclick="showView('inventory')" style="display:none">
+        <span>⚠</span><span class="alert-banner-text" id="ov-banner-text"></span>
+        <span class="alert-link">前往庫存管理 →</span>
       </div>
-
       <div class="stat-grid">
-        <div class="stat-card">
-          <div class="stat-label">總品項數</div>
-          <div class="stat-value" id="stat-total">—</div>
-          <div class="stat-sub">active SKUs</div>
-        </div>
-        <div class="stat-card warn" id="stat-low-card">
-          <div class="stat-label">庫存不足</div>
-          <div class="stat-value" id="stat-low">—</div>
-          <div class="stat-sub">低於4個月安全水位</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">本月訂單</div>
-          <div class="stat-value" id="stat-orders">—</div>
-          <div class="stat-sub">筆門市訂購單</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">待處理出庫</div>
-          <div class="stat-value" id="stat-pending">—</div>
-          <div class="stat-sub">待確認發出</div>
-        </div>
+        <div class="stat-card"><div class="stat-label">總品項數</div><div class="stat-value" id="s-total">—</div><div class="stat-sub">active SKUs</div></div>
+        <div class="stat-card alert"><div class="stat-label">庫存警示</div><div class="stat-value" id="s-low">—</div><div class="stat-sub">低於4個月水位</div></div>
+        <div class="stat-card"><div class="stat-label">訂單總數</div><div class="stat-value" id="s-orders">—</div><div class="stat-sub">筆門市訂購</div></div>
+        <div class="stat-card"><div class="stat-label">待確認出庫</div><div class="stat-value" id="s-pending">—</div><div class="stat-sub">待處理</div></div>
       </div>
-
       <div class="two-col">
         <div>
-          <div class="section-header">
-            <div class="section-title">庫存警示</div>
-            <button class="btn btn-outline btn-sm" onclick="showView('inventory')">查看全部</button>
-          </div>
-          <div class="card" id="alert-list">
-            <div class="empty">載入中...</div>
-          </div>
+          <div class="section-header"><div class="section-title">庫存警示</div><button class="btn btn-outline btn-sm" onclick="showView('inventory')">查看全部</button></div>
+          <div class="card" id="ov-alerts"><div class="empty">所有品項庫存正常 ✓</div></div>
         </div>
         <div>
-          <div class="section-header">
-            <div class="section-title">最近訂單</div>
-            <button class="btn btn-outline btn-sm" onclick="showView('records')">查看全部</button>
-          </div>
-          <div class="card" id="recent-orders">
-            <div class="empty">載入中...</div>
-          </div>
+          <div class="section-header"><div class="section-title">最近訂單</div><button class="btn btn-outline btn-sm" onclick="showView('records')">查看全部</button></div>
+          <div class="card" id="ov-orders"><div class="empty">無訂單紀錄</div></div>
         </div>
       </div>
     </div>
 
-    <!-- ── VIEW: INVENTORY ── -->
     <div class="view" id="view-inventory">
       <div class="card">
         <div class="toolbar">
           <div class="search-box">
             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--text3);flex-shrink:0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-            <input type="text" placeholder="搜尋貨號或品名..." id="inv-search" oninput="renderInventory()">
+            <input placeholder="搜尋貨號或品名..." id="inv-q" oninput="renderInv()">
           </div>
-          <div class="filter-chips" id="inv-chips"></div>
-          <button class="btn btn-primary btn-sm" onclick="openAddItem()">＋ 新增品項</button>
+          <div class="chips" id="inv-chips"></div>
+          <button class="btn btn-outline btn-sm" id="inv-alert-btn" onclick="toggleAlertOnly()">⚠ 僅顯示警示</button>
+          <button class="btn btn-primary btn-sm" id="inv-add-btn" onclick="openAddItem()" style="display:none">＋ 新增</button>
         </div>
-        <table id="inv-table">
-          <thead>
-            <tr>
-              <th>貨號</th>
-              <th>品名</th>
-              <th>類別</th>
-              <th>單位</th>
-              <th style="text-align:right">現有庫存</th>
-              <th style="text-align:right">安全水位</th>
-              <th>庫存狀態</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="inv-body"></tbody>
-        </table>
+        <table><thead><tr>
+          <th>貨號</th><th>品名</th><th>單位</th>
+          <th class="r">現有庫存</th><th class="r">待入庫</th><th class="r">安全水位</th>
+          <th>庫存狀態</th><th></th>
+        </tr></thead><tbody id="inv-body"></tbody></table>
       </div>
     </div>
 
-    <!-- ── VIEW: NEW ORDER (store) ── -->
+    <div class="view" id="view-usage">
+      <div class="card">
+        <div class="toolbar">
+          <div class="search-box">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--text3);flex-shrink:0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input placeholder="搜尋品名..." id="usage-q" oninput="renderUsage()">
+          </div>
+          <div class="chips" id="usage-chips"></div>
+        </div>
+        <div class="usage-wrap"><table class="usage-tbl"><thead id="usage-thead"></thead><tbody id="usage-body"></tbody></table></div>
+      </div>
+    </div>
+
     <div class="view" id="view-order">
-      <div class="card" style="max-width: 640px;">
+      <div class="order-info-bar" id="order-info-bar"></div>
+      <div class="card" style="max-width:580px">
         <div class="toolbar">
           <div class="search-box" style="flex:1">
             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--text3);flex-shrink:0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-            <input type="text" placeholder="搜尋品名..." id="ord-search" oninput="renderOrderItems()">
+            <input placeholder="搜尋品名..." id="ord-q" oninput="renderOrderItems()">
           </div>
-          <div class="filter-chips" id="ord-chips"></div>
+          <div class="chips" id="ord-chips"></div>
         </div>
-        <table class="order-table">
-          <thead>
-            <tr>
-              <th>品名</th>
-              <th>單位</th>
-              <th style="text-align:right">訂購數量</th>
-            </tr>
-          </thead>
-          <tbody id="ord-body"></tbody>
-        </table>
-        <div style="padding:16px 16px; border-top: 1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
-          <div style="font-size:13px; color:var(--text2)">已選 <span id="ord-count" class="inline-num" style="font-weight:600; color:var(--text)">0</span> 項商品</div>
+        <table><thead><tr><th>貨號</th><th>品名</th><th>單位</th><th class="r">訂購數量</th></tr></thead>
+        <tbody id="ord-body"></tbody></table>
+        <div class="ord-sumbar">
+          <span style="font-size:13px;color:var(--text2)">已選 <strong id="ord-count">0</strong> 項</span>
           <button class="btn btn-primary" onclick="submitOrder()">確認送出訂單</button>
         </div>
       </div>
     </div>
 
-    <!-- ── VIEW: RECORDS ── -->
+    <div class="view" id="view-my-orders">
+      <div class="card">
+        <div class="toolbar">
+          <div class="chips" id="my-ord-chips">
+            <button class="chip active" onclick="setMyOrdFilter('all',this)">全部</button>
+            <button class="chip" onclick="setMyOrdFilter('待確認',this)">待確認</button>
+            <button class="chip" onclick="setMyOrdFilter('處理中',this)">處理中</button>
+            <button class="chip" onclick="setMyOrdFilter('已完成',this)">已完成</button>
+          </div>
+        </div>
+        <table><thead><tr><th>單號</th><th>日期</th><th>品項數</th><th>狀態</th><th></th></tr></thead>
+        <tbody id="my-ord-body"></tbody></table>
+      </div>
+    </div>
+
     <div class="view" id="view-records">
       <div class="card">
         <div class="toolbar">
-          <div class="filter-chips" id="rec-status-chips">
+          <div class="chips" id="rec-chips">
             <button class="chip active" onclick="setRecFilter('all',this)">全部</button>
             <button class="chip" onclick="setRecFilter('待確認',this)">待確認</button>
             <button class="chip" onclick="setRecFilter('處理中',this)">處理中</button>
             <button class="chip" onclick="setRecFilter('已完成',this)">已完成</button>
           </div>
         </div>
-        <table class="orders-table">
-          <thead>
-            <tr>
-              <th>單號</th>
-              <th>門市</th>
-              <th>日期</th>
-              <th>品項數</th>
-              <th>狀態</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="rec-body"></tbody>
-        </table>
+        <table><thead><tr><th>單號</th><th>門市</th><th>Warehouse Code</th><th>日期</th><th>品項數</th><th>狀態</th><th></th></tr></thead>
+        <tbody id="rec-body"></tbody></table>
       </div>
     </div>
 
-    <!-- ── VIEW: RECEIVING ── -->
     <div class="view" id="view-receiving">
-      <div style="max-width: 580px;">
-        <div class="card" style="margin-bottom:16px;">
-          <div style="padding: 16px 20px; border-bottom: 1px solid var(--border);">
-            <div class="form-grid">
-              <div class="form-group">
-                <label class="form-label">入庫日期</label>
-                <input type="date" class="form-input" id="recv-date">
-              </div>
-              <div class="form-group">
-                <label class="form-label">參考單號（選填）</label>
-                <input type="text" class="form-input" id="recv-ref" placeholder="e.g. PO-2026-001">
-              </div>
+      <div style="max-width:560px">
+        <div class="card" style="margin-bottom:14px">
+          <div style="padding:14px 16px;border-bottom:1px solid var(--border)">
+            <div class="fg-row">
+              <div class="fg"><label>入庫日期</label><input type="date" class="fi" id="recv-date"></div>
+              <div class="fg"><label>參考單號（選填）</label><input type="text" class="fi" id="recv-ref" placeholder="e.g. PO-2026-001"></div>
             </div>
           </div>
-          <div style="padding: 10px 0;">
-            <div style="padding: 8px 16px; font-size:11px; font-weight:600; color:var(--text3); text-transform:uppercase; letter-spacing:0.05em; display:grid; grid-template-columns:1fr 60px 80px 60px; gap:8px;">
-              <span>品名</span><span style="text-align:right">現有</span><span style="text-align:center">入庫數量</span><span style="text-align:left">入庫後</span>
+          <div style="padding:8px 0">
+            <div style="padding:7px 14px;display:grid;grid-template-columns:1fr 56px 80px 60px;gap:8px;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em">
+              <span>品名</span><span style="text-align:right">現有</span><span style="text-align:center">入庫量</span><span>入庫後</span>
             </div>
-            <div id="recv-body"></div>
+            <div id="recv-body" style="max-height:420px;overflow-y:auto"></div>
           </div>
         </div>
-        <div style="display:flex; justify-content:flex-end; gap:8px;">
-          <button class="btn btn-outline" onclick="clearReceiving()">清除</button>
-          <button class="btn btn-primary" onclick="confirmReceiving()">確認入庫</button>
+        <div style="display:flex;justify-content:flex-end;gap:8px">
+          <button class="btn btn-outline" onclick="clearRecv()">清除</button>
+          <button class="btn btn-primary" onclick="confirmRecv()">確認入庫</button>
         </div>
       </div>
     </div>
 
-  </div><!-- /content -->
-</div><!-- /main -->
+  </div>
+</div>
 
-<!-- ── MODALS ── -->
-
-<!-- Add/Edit Item -->
-<div class="modal-overlay" id="modal-item">
+<div class="overlay" id="modal-item">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="item-modal-title">新增品項</div>
-      <button class="modal-close" onclick="closeModal('modal-item')">×</button>
-    </div>
+    <div class="modal-hdr"><div class="modal-title" id="item-modal-title">新增品項</div><button class="modal-close" onclick="closeModal('modal-item')">×</button></div>
     <div class="modal-body">
-      <div class="form-grid">
-        <div class="form-group">
-          <label class="form-label">貨號</label>
-          <input type="text" class="form-input" id="item-code" placeholder="e.g. 3830419">
-        </div>
-        <div class="form-group">
-          <label class="form-label">單位</label>
-          <input type="text" class="form-input" id="item-unit" placeholder="個 / 張 / 條">
-        </div>
-        <div class="form-group full">
-          <label class="form-label">品名</label>
-          <input type="text" class="form-input" id="item-name" placeholder="e.g. 珠寶盒 12×12×11">
-        </div>
-        <div class="form-group">
-          <label class="form-label">類別</label>
-          <select class="form-select" id="item-cat">
-            <option>珠寶盒</option><option>購物袋</option><option>說明卡</option>
-            <option>拭銀布</option><option>氣泡袋</option><option>包裝材料</option>
-            <option>緞帶</option><option>手套</option><option>其他</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">現有庫存</label>
-          <input type="number" class="form-input" id="item-stock" placeholder="0" min="0">
-        </div>
-        <div class="form-group">
-          <label class="form-label">年用量（估）</label>
-          <input type="number" class="form-input" id="item-annual" placeholder="0" min="0">
-        </div>
-        <div class="form-group">
-          <label class="form-label">安全水位（月）</label>
-          <input type="number" class="form-input" id="item-safemonths" value="4" min="1">
-        </div>
+      <div class="fg-row">
+        <div class="fg"><label>貨號</label><input class="fi" id="it-code"></div>
+        <div class="fg"><label>單位</label><input class="fi" id="it-unit" placeholder="PCS / 張 / 捲"></div>
+      </div>
+      <div class="fg"><label>品名</label><input class="fi" id="it-name"></div>
+      <div class="fg-row">
+        <div class="fg"><label>類別</label><select class="fi" id="it-cat" style="appearance:auto"></select></div>
+        <div class="fg"><label>供應商</label><input class="fi" id="it-supplier"></div>
+      </div>
+      <div class="fg-row">
+        <div class="fg"><label>現有庫存</label><input type="number" class="fi" id="it-stock" min="0"></div>
+        <div class="fg"><label>待入庫 (on order)</label><input type="number" class="fi" id="it-onorder" min="0"></div>
+      </div>
+      <div class="fg-row">
+        <div class="fg"><label>MOQ / 箱裝</label><input class="fi" id="it-moq" placeholder="e.g. 5PCS/CTN"></div>
+        <div class="fg"><label>備註</label><input class="fi" id="it-remark"></div>
       </div>
     </div>
     <div class="modal-footer">
@@ -717,13 +349,9 @@
   </div>
 </div>
 
-<!-- Order Detail -->
-<div class="modal-overlay" id="modal-order-detail">
+<div class="overlay" id="modal-order">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="od-title">訂單詳情</div>
-      <button class="modal-close" onclick="closeModal('modal-order-detail')">×</button>
-    </div>
+    <div class="modal-hdr"><div class="modal-title" id="od-title">訂單詳情</div><button class="modal-close" onclick="closeModal('modal-order')">×</button></div>
     <div class="modal-body" id="od-body"></div>
     <div class="modal-footer" id="od-footer"></div>
   </div>
@@ -732,503 +360,281 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ─── DATA ───────────────────────────────────────────────
-const CATEGORIES = ['全部','珠寶盒','購物袋','說明卡','拭銀布','氣泡袋','包裝材料','緞帶','手套','其他'];
+const ITEMS_DATA=[{"id":"3830419","name":"珠寶盒12*12*11","unit":"PCS","stock":0,"on_order":0,"moq":"","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":0,"2024-10":0,"2024-11":0,"2024-12":0,"2025-01":0,"2025-02":0,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"3830421","name":"珠寶盒 17*12*13 (5PCS/CTN)","unit":"PCS","stock":7,"on_order":0,"moq":"","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":0,"2024-10":0,"2024-11":0,"2024-12":0,"2025-01":0,"2025-02":0,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"3830423","name":"珠寶盒 27*18*19","unit":"PCS","stock":2,"on_order":0,"moq":"","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":0,"2024-10":0,"2024-11":0,"2024-12":0,"2025-01":0,"2025-02":0,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"3830424","name":"珠寶盒 34*18*17","unit":"PCS","stock":3,"on_order":0,"moq":"","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":0,"2024-10":0,"2024-11":0,"2024-12":0,"2025-01":0,"2025-02":0,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"3830425","name":"珠寶盒 31*34*29 (1PCS/CTN)","unit":"PCS","stock":6,"on_order":0,"moq":"","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":0,"2024-10":0,"2024-11":0,"2024-12":0,"2025-01":0,"2025-02":0,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"3830429","name":"珠寶盒 41*41*40 (1PCS/CTN)","unit":"PCS","stock":1,"on_order":0,"moq":"","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":0,"2024-10":0,"2024-11":0,"2024-12":0,"2025-01":0,"2025-02":0,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"3830431","name":"珠寶盒 33*33*5","unit":"PCS","stock":2,"on_order":0,"moq":"","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":0,"2024-10":0,"2024-11":0,"2024-12":0,"2025-01":0,"2025-02":0,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"3830443","name":"珠寶盒 50*45*57 (1PCS/CTN)","unit":"PCS","stock":0,"on_order":0,"moq":"","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":0,"2024-10":0,"2024-11":0,"2024-12":0,"2025-01":0,"2025-02":0,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"3830446","name":"珠寶盒 78*53*20 (1PCS/CTN)","unit":"PCS","stock":5,"on_order":0,"moq":"","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":0,"2024-10":0,"2024-11":0,"2024-12":0,"2025-01":0,"2025-02":0,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"9820066","name":"WATCHBOX W LOGO (BANGLE) (12PCS/CTN)","unit":"PCS","stock":34,"on_order":36,"moq":"36","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":9,"2024-10":26,"2024-11":10,"2024-12":2,"2025-01":12,"2025-02":12,"2025-03":16,"2025-04":4,"2025-05":0,"2025-06":6,"2025-07":16,"2025-08":0,"2025-09":14,"2025-10":2,"2025-11":18,"2025-12":6,"2026-01":3}},{"id":"9845012","name":"CUTLERY BOX. SMALL ITEMS","unit":"PCS","stock":14,"on_order":0,"moq":"","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":2,"2024-10":2,"2024-11":0,"2024-12":0,"2025-01":1,"2025-02":0,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"9845013","name":"CUTLERY BOX, 4-8 PCS","unit":"PCS","stock":6,"on_order":0,"moq":"","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":1,"2024-10":0,"2024-11":0,"2024-12":0,"2025-01":0,"2025-02":0,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"9845015","name":"CUTLERY BOX, SMALL ITEMS","unit":"PCS","stock":23,"on_order":0,"moq":"","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":0,"2024-10":0,"2024-11":0,"2024-12":0,"2025-01":1,"2025-02":0,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"9845016","name":"CUTLERY BOX, CHOPSTICKS","unit":"PCS","stock":10,"on_order":0,"moq":"","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":0,"2024-10":2,"2024-11":0,"2024-12":0,"2025-01":0,"2025-02":0,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"9845017","name":"CUTLERY BOX, SALAD AND FISH","unit":"PCS","stock":16,"on_order":0,"moq":"","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":0,"2024-10":2,"2024-11":0,"2024-12":0,"2025-01":0,"2025-02":0,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"9863000","name":"包裝紙(美圖製) / 1箱252張","unit":"張","stock":1396,"on_order":0,"moq":"","remark":"","supplier":"美圖","monthly_usage":{"2024-09":140,"2024-10":645,"2024-11":50,"2024-12":85,"2025-01":200,"2025-02":130,"2025-03":352,"2025-04":65,"2025-05":0,"2025-06":60,"2025-07":100,"2025-08":0,"2025-09":148,"2025-10":220,"2025-11":60,"2025-12":0,"2026-01":100}},{"id":"9863002","name":"包裝用GJ貼紙   張 /10PCS","unit":"張","stock":894,"on_order":0,"moq":"","remark":"","supplier":"美圖","monthly_usage":{"2024-09":44,"2024-10":172,"2024-11":40,"2024-12":68,"2025-01":133,"2025-02":5,"2025-03":10,"2025-04":15,"2025-05":10,"2025-06":45,"2025-07":65,"2025-08":0,"2025-09":52,"2025-10":151,"2025-11":21,"2025-12":0,"2026-01":30}},{"id":"9863047","name":"RIBBON GREY (12MM) / 1箱126捲","unit":"捲","stock":64,"on_order":126,"moq":"126","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":63,"2024-10":36,"2024-11":20,"2024-12":20,"2025-01":42,"2025-02":21,"2025-03":13,"2025-04":12,"2025-05":2,"2025-06":29,"2025-07":24,"2025-08":0,"2025-09":26,"2025-10":22,"2025-11":25,"2025-12":3,"2026-01":7}},{"id":"9863048","name":"RIBBON GREY (25MM) / 1箱72捲","unit":"捲","stock":116,"on_order":0,"moq":"72","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":27,"2024-10":48,"2024-11":0,"2024-12":26,"2025-01":46,"2025-02":17,"2025-03":21,"2025-04":12,"2025-05":6,"2025-06":16,"2025-07":20,"2025-08":0,"2025-09":28,"2025-10":42,"2025-11":25,"2025-12":3,"2026-01":5}},{"id":"10017636","name":"RING POUCH, LIGHT GREY, 25 PCS (600PCS/CTN)","unit":"PCS","stock":0,"on_order":2225,"moq":"25","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":287,"2024-10":650,"2024-11":275,"2024-12":500,"2025-01":900,"2025-02":175,"2025-03":375,"2025-04":175,"2025-05":0,"2025-06":352,"2025-07":279,"2025-08":0,"2025-09":551,"2025-10":480,"2025-11":450,"2025-12":1,"2026-01":500}},{"id":"10017637","name":"BANGLE POUCH, LIGHT GREY 25 PCS (400PCS/CTN)","unit":"PCS","stock":346,"on_order":1600,"moq":"25","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":231,"2024-10":650,"2024-11":175,"2024-12":225,"2025-01":1225,"2025-02":100,"2025-03":350,"2025-04":0,"2025-05":0,"2025-06":775,"2025-07":102,"2025-08":0,"2025-09":376,"2025-10":626,"2025-11":875,"2025-12":0,"2026-01":750}},{"id":"10019488","name":"NON WOVEN SHOPPING BAG XXL :670x250x450 mm","unit":"PCS","stock":1472,"on_order":0,"moq":"25","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":0,"2024-10":0,"2024-11":0,"2024-12":0,"2025-01":315,"2025-02":25,"2025-03":20,"2025-04":30,"2025-05":23,"2025-06":48,"2025-07":60,"2025-08":63,"2025-09":76,"2025-10":336,"2025-11":2,"2025-12":31,"2026-01":17}},{"id":"10019500","name":"NON WOVEN SHOPPING BAG XL : 500x200x350 mm","unit":"PCS","stock":672,"on_order":600,"moq":"25","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":100,"2024-10":0,"2024-11":0,"2024-12":0,"2025-01":537,"2025-02":100,"2025-03":170,"2025-04":50,"2025-05":103,"2025-06":164,"2025-07":52,"2025-08":0,"2025-09":222,"2025-10":378,"2025-11":149,"2025-12":185,"2026-01":181}},{"id":"10019501","name":"NON WOVEN SHOPPING BAG L :400x120x280","unit":"PCS","stock":1661,"on_order":2000,"moq":"25","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":261,"2024-10":521,"2024-11":835,"2024-12":795,"2025-01":928,"2025-02":385,"2025-03":55,"2025-04":200,"2025-05":140,"2025-06":250,"2025-07":228,"2025-08":64,"2025-09":479,"2025-10":676,"2025-11":352,"2025-12":121,"2026-01":332}},{"id":"10019670","name":"BOX A EARRINGS, SMALL. 12 PCS (144PCS/CTN)","unit":"PCS","stock":1631,"on_order":1200,"moq":"12","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":421,"2024-10":1264,"2024-11":435,"2024-12":496,"2025-01":853,"2025-02":398,"2025-03":492,"2025-04":198,"2025-05":72,"2025-06":1182,"2025-07":442,"2025-08":153,"2025-09":614,"2025-10":882,"2025-11":202,"2025-12":62,"2026-01":204}},{"id":"10019671","name":"BOX B RING, SMALL, 12 PCS (144PCS/CTN)","unit":"PCS","stock":553,"on_order":720,"moq":"12","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":217,"2024-10":546,"2024-11":84,"2024-12":163,"2025-01":548,"2025-02":215,"2025-03":228,"2025-04":72,"2025-05":48,"2025-06":253,"2025-07":265,"2025-08":4,"2025-09":375,"2025-10":285,"2025-11":468,"2025-12":2,"2026-01":116}},{"id":"10019673","name":"BOX D BANGLE/BROOCH, 12 PCS (60PCS/CTN)","unit":"PCS","stock":183,"on_order":768,"moq":"12","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":35,"2024-10":210,"2024-11":118,"2024-12":157,"2025-01":215,"2025-02":108,"2025-03":147,"2025-04":48,"2025-05":1,"2025-06":95,"2025-07":97,"2025-08":3,"2025-09":164,"2025-10":226,"2025-11":74,"2025-12":8,"2026-01":71}},{"id":"10019674","name":"BOX E BRACELET, 6 PCS(26.8*7.4*4.2) (48PCS/CTN)","unit":"PCS","stock":211,"on_order":336,"moq":"6","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":40,"2024-10":132,"2024-11":51,"2024-12":71,"2025-01":124,"2025-02":21,"2025-03":66,"2025-04":64,"2025-05":0,"2025-06":49,"2025-07":46,"2025-08":0,"2025-09":124,"2025-10":78,"2025-11":30,"2025-12":0,"2026-01":63}},{"id":"10019675","name":"BOX F WEDDINGRING BOX, 12 PCS (144PCS/CTN)","unit":"PCS","stock":570,"on_order":0,"moq":"12","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":0,"2024-10":18,"2024-11":0,"2024-12":0,"2025-01":24,"2025-02":0,"2025-03":0,"2025-04":24,"2025-05":0,"2025-06":12,"2025-07":12,"2025-08":0,"2025-09":18,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"10019676","name":"BOX G NECLACE, 6 PCS (12PCS/CTN)","unit":"PCS","stock":101,"on_order":0,"moq":"6","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":0,"2024-10":33,"2024-11":30,"2024-12":7,"2025-01":30,"2025-02":18,"2025-03":22,"2025-04":0,"2025-05":1,"2025-06":8,"2025-07":7,"2025-08":0,"2025-09":12,"2025-10":16,"2025-11":3,"2025-12":0,"2026-01":3}},{"id":"10019677","name":"BOX H RING, LARGE, 12 PCS (96PCS/CTN)","unit":"PCS","stock":180,"on_order":288,"moq":"12","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":48,"2024-10":102,"2024-11":116,"2024-12":88,"2025-01":96,"2025-02":48,"2025-03":6,"2025-04":24,"2025-05":1,"2025-06":98,"2025-07":49,"2025-08":6,"2025-09":82,"2025-10":78,"2025-11":74,"2025-12":0,"2026-01":58}},{"id":"10019678","name":"BOX F SAUTOIR, 6 PCS (24PCS/CTN)","unit":"PCS","stock":46,"on_order":96,"moq":"6","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":0,"2024-10":8,"2024-11":39,"2024-12":9,"2025-01":28,"2025-02":6,"2025-03":36,"2025-04":0,"2025-05":31,"2025-06":19,"2025-07":37,"2025-08":2,"2025-09":8,"2025-10":41,"2025-11":12,"2025-12":1,"2026-01":29}},{"id":"10019679","name":"BOX I CUFF/BANGLE CUFFS AND LARGE BANGLES, 6 PCS","unit":"PCS","stock":92,"on_order":0,"moq":"6","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":0,"2024-10":13,"2024-11":4,"2024-12":0,"2025-01":6,"2025-02":0,"2025-03":15,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":2,"2025-08":0,"2025-09":0,"2025-10":10,"2025-11":0,"2025-12":0,"2026-01":17}},{"id":"10019680","name":"BOX C PEND/CUFF/EARRING, 12 PCS (96PCS/CTN) / 8.7*9.2*4.8","unit":"PCS","stock":1772,"on_order":3240,"moq":"12","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":673,"2024-10":1992,"2024-11":392,"2024-12":1100,"2025-01":1400,"2025-02":764,"2025-03":900,"2025-04":340,"2025-05":73,"2025-06":1651,"2025-07":1122,"2025-08":79,"2025-09":822,"2025-10":1598,"2025-11":1630,"2025-12":901,"2026-01":721}},{"id":"10019690","name":"PAPER SHOPPING BAG, MEDIUM (25 PCS) / 1箱100PCS","unit":"PCS","stock":2077,"on_order":2000,"moq":"25","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":723,"2024-10":1278,"2024-11":300,"2024-12":501,"2025-01":1502,"2025-02":23,"2025-03":385,"2025-04":125,"2025-05":98,"2025-06":304,"2025-07":344,"2025-08":119,"2025-09":598,"2025-10":828,"2025-11":208,"2025-12":113,"2026-01":352}},{"id":"10019691","name":"PAPER SHOPPING BAG, SMALL (25PCS) / 1箱100PCS","unit":"PCS","stock":3093,"on_order":5000,"moq":"25","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":1246,"2024-10":3300,"2024-11":1508,"2024-12":962,"2025-01":1390,"2025-02":1506,"2025-03":1725,"2025-04":775,"2025-05":134,"2025-06":1033,"2025-07":1617,"2025-08":274,"2025-09":1441,"2025-10":2370,"2025-11":1176,"2025-12":301,"2026-01":1306}},{"id":"10020869","name":"Silverware accessories box","unit":"PCS","stock":89,"on_order":0,"moq":"6","remark":"","supplier":"GJ CS","monthly_usage":{"2024-09":0,"2024-10":0,"2024-11":0,"2024-12":0,"2025-01":0,"2025-02":24,"2025-03":24,"2025-04":6,"2025-05":0,"2025-06":6,"2025-07":9,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":6,"2025-12":0,"2026-01":0}},{"id":"A001","name":"黑手套(保養使用) / 雙","unit":"雙","stock":0,"on_order":30,"moq":"","remark":"","supplier":"CNL","monthly_usage":{"2024-09":2,"2024-10":16,"2024-11":0,"2024-12":0,"2025-01":18,"2025-02":0,"2025-03":0,"2025-04":3,"2025-05":0,"2025-06":6,"2025-07":10,"2025-08":0,"2025-09":5,"2025-10":5,"2025-11":3,"2025-12":0,"2026-01":4}},{"id":"A002","name":"黑手套(銷售使用) 尺寸：S*    / 雙","unit":"雙","stock":22,"on_order":0,"moq":"","remark":"","supplier":"CNL","monthly_usage":{"2024-09":0,"2024-10":8,"2024-11":0,"2024-12":1,"2025-01":0,"2025-02":0,"2025-03":17,"2025-04":2,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":10,"2025-10":0,"2025-11":5,"2025-12":0,"2026-01":0}},{"id":"A003","name":"黑手套(銷售使用) 尺寸：M* / 雙","unit":"雙","stock":8,"on_order":0,"moq":"","remark":"","supplier":"CNL","monthly_usage":{"2024-09":2,"2024-10":12,"2024-11":10,"2024-12":0,"2025-01":4,"2025-02":5,"2025-03":4,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":7,"2025-08":0,"2025-09":3,"2025-10":8,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"A004","name":"由任袋-1\"(5*7-4MM) / 包","unit":"PCS","stock":192,"on_order":0,"moq":"","remark":"","supplier":"CNL","monthly_usage":{"2024-09":15,"2024-10":28,"2024-11":10,"2024-12":17,"2025-01":37,"2025-02":5,"2025-03":19,"2025-04":14,"2025-05":0,"2025-06":31,"2025-07":16,"2025-08":0,"2025-09":16,"2025-10":34,"2025-11":7,"2025-12":0,"2026-01":14}},{"id":"A005","name":"由任袋-3\"(7*10-8MM) / 包","unit":"PCS","stock":131,"on_order":0,"moq":"","remark":"","supplier":"CNL","monthly_usage":{"2024-09":9,"2024-10":14,"2024-11":8,"2024-12":9,"2025-01":11,"2025-02":4,"2025-03":7,"2025-04":5,"2025-05":0,"2025-06":7,"2025-07":5,"2025-08":0,"2025-09":14,"2025-10":14,"2025-11":6,"2025-12":0,"2026-01":8}},{"id":"A006","name":"6寸由任袋","unit":"PCS","stock":58,"on_order":0,"moq":"","remark":"","supplier":"CNL","monthly_usage":{"2024-09":0,"2024-10":0,"2024-11":3,"2024-12":15,"2025-01":11,"2025-02":4,"2025-03":6,"2025-04":5,"2025-05":1,"2025-06":8,"2025-07":5,"2025-08":0,"2025-09":11,"2025-10":11,"2025-11":10,"2025-12":0,"2026-01":4}},{"id":"A007","name":"由任袋-8\"(9*30MM) / 包","unit":"PCS","stock":1,"on_order":50,"moq":"","remark":"","supplier":"CNL","monthly_usage":{"2024-09":3,"2024-10":14,"2024-11":2,"2024-12":7,"2025-01":2,"2025-02":0,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":4,"2025-08":0,"2025-09":8,"2025-10":5,"2025-11":2,"2025-12":0,"2026-01":3}},{"id":"A008","name":"由任袋-9\"(20*28-8MM) / 包","unit":"PCS","stock":26,"on_order":0,"moq":"","remark":"","supplier":"CNL","monthly_usage":{"2024-09":1,"2024-10":3,"2024-11":1,"2024-12":2,"2025-01":3,"2025-02":0,"2025-03":0,"2025-04":4,"2025-05":0,"2025-06":0,"2025-07":5,"2025-08":0,"2025-09":3,"2025-10":3,"2025-11":2,"2025-12":0,"2026-01":2}},{"id":"A010","name":"氣泡袋-A_10x(9+10)cm","unit":"PCS","stock":58,"on_order":50,"moq":"","remark":"","supplier":"CNL","monthly_usage":{"2024-09":43,"2024-10":35,"2024-11":0,"2024-12":25,"2025-01":30,"2025-02":0,"2025-03":20,"2025-04":0,"2025-05":0,"2025-06":10,"2025-07":26,"2025-08":0,"2025-09":20,"2025-10":46,"2025-11":26,"2025-12":0,"2026-01":15}},{"id":"A011","name":"氣泡袋-B_12.5x(16+18.5)cm","unit":"PCS","stock":414,"on_order":0,"moq":"","remark":"","supplier":"CNL","monthly_usage":{"2024-09":3,"2024-10":35,"2024-11":0,"2024-12":5,"2025-01":10,"2025-02":0,"2025-03":10,"2025-04":0,"2025-05":0,"2025-06":10,"2025-07":5,"2025-08":0,"2025-09":40,"2025-10":10,"2025-11":10,"2025-12":0,"2026-01":0}},{"id":"A012","name":"氣泡袋-C_12x(31.5+33.5)cm","unit":"PCS","stock":770,"on_order":0,"moq":"","remark":"","supplier":"CNL","monthly_usage":{"2024-09":8,"2024-10":15,"2024-11":0,"2024-12":5,"2025-01":5,"2025-02":0,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":8,"2025-07":5,"2025-08":0,"2025-09":20,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":10}},{"id":"A016","name":"腕錶國際保固卡 (1包50張)","unit":"張","stock":630,"on_order":0,"moq":"","remark":"","supplier":"美圖 ordered by christine","monthly_usage":{"2024-09":105,"2024-10":25,"2024-11":0,"2024-12":0,"2025-01":15,"2025-02":7,"2025-03":20,"2025-04":10,"2025-05":0,"2025-06":20,"2025-07":0,"2025-08":0,"2025-09":20,"2025-10":10,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"A017","name":"腕錶鑽石說明卡 (1包50張)","unit":"張","stock":630,"on_order":0,"moq":"","remark":"","supplier":"美圖 ordered by christine","monthly_usage":{"2024-09":105,"2024-10":20,"2024-11":0,"2024-12":0,"2025-01":0,"2025-02":10,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":10,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":5,"2025-12":0,"2026-01":0}},{"id":"A018","name":"K金與鑽石珠寶說明卡-1包50張 / 單位:張","unit":"張","stock":226,"on_order":0,"moq":"","remark":"","supplier":"美圖 ordered by christine","monthly_usage":{"2024-09":236,"2024-10":473,"2024-11":321,"2024-12":191,"2025-01":544,"2025-02":39,"2025-03":180,"2025-04":80,"2025-05":3,"2025-06":87,"2025-07":70,"2025-08":2,"2025-09":151,"2025-10":131,"2025-11":200,"2025-12":9,"2026-01":65}},{"id":"A019","name":"珠寶商品說明小本-1包100本 / 單位:本","unit":"PCS","stock":0,"on_order":0,"moq":"","remark":"discontinued","supplier":"美圖印刷 (K金+珠寶使用)","monthly_usage":{"2024-09":510,"2024-10":2743,"2024-11":816,"2024-12":1570,"2025-01":2732,"2025-02":175,"2025-03":0,"2025-04":0,"2025-05":51,"2025-06":120,"2025-07":51,"2025-08":143,"2025-09":293,"2025-10":46,"2025-11":2,"2025-12":3,"2026-01":0}},{"id":"A020","name":"寶石商品小卡-1包100張 / 單位:張","unit":"張","stock":8500,"on_order":0,"moq":"","remark":"","supplier":"美圖 ordered by christine","monthly_usage":{"2024-09":10,"2024-10":585,"2024-11":11,"2024-12":100,"2025-01":200,"2025-02":0,"2025-03":200,"2025-04":1,"2025-05":0,"2025-06":4,"2025-07":100,"2025-08":0,"2025-09":200,"2025-10":0,"2025-11":300,"2025-12":0,"2026-01":0}},{"id":"A021","name":"保證卡信封-1包100個","unit":"PCS","stock":14016,"on_order":0,"moq":"","remark":"","supplier":"美圖 ordered by christine","monthly_usage":{"2024-09":300,"2024-10":450,"2024-11":0,"2024-12":100,"2025-01":300,"2025-02":0,"2025-03":150,"2025-04":0,"2025-05":0,"2025-06":170,"2025-07":0,"2025-08":22,"2025-09":3,"2025-10":126,"2025-11":20,"2025-12":2,"2026-01":116}},{"id":"A022","name":"交易封套-1包100個","unit":"PCS","stock":7570,"on_order":0,"moq":"","remark":"","supplier":"美圖","monthly_usage":{"2024-09":500,"2024-10":1500,"2024-11":300,"2024-12":200,"2025-01":753,"2025-02":100,"2025-03":500,"2025-04":400,"2025-05":0,"2025-06":1000,"2025-07":800,"2025-08":0,"2025-09":700,"2025-10":600,"2025-11":300,"2025-12":0,"2026-01":601}},{"id":"A023","name":"禮品小卡(卡片+封套)/1包50個 / 單位:個","unit":"PCS","stock":1250,"on_order":0,"moq":"","remark":"","supplier":"美圖","monthly_usage":{"2024-09":652,"2024-10":750,"2024-11":350,"2024-12":501,"2025-01":1204,"2025-02":200,"2025-03":550,"2025-04":302,"2025-05":100,"2025-06":352,"2025-07":675,"2025-08":0,"2025-09":500,"2025-10":702,"2025-11":200,"2025-12":0,"2026-01":450}},{"id":"A024","name":"AXAPTA銷售調貨單據-空白紙捲 / 箱","unit":"捲","stock":231,"on_order":0,"moq":"","remark":"","supplier":"ordered by christine","monthly_usage":{"2024-09":0,"2024-10":2,"2024-11":0,"2024-12":1,"2025-01":0,"2025-02":1,"2025-03":1,"2025-04":2,"2025-05":0,"2025-06":0,"2025-07":2,"2025-08":0,"2025-09":0,"2025-10":2,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"A025","name":"手錶專用提袋-1箱25PCS","unit":"PCS","stock":518,"on_order":0,"moq":"","remark":"","supplier":"美圖","monthly_usage":{"2024-09":75,"2024-10":230,"2024-11":75,"2024-12":50,"2025-01":25,"2025-02":0,"2025-03":85,"2025-04":25,"2025-05":0,"2025-06":3,"2025-07":6,"2025-08":0,"2025-09":18,"2025-10":105,"2025-11":50,"2025-12":0,"2026-01":25}},{"id":"A026","name":"保養用銀布 / 單位：片","unit":"PCS","stock":412,"on_order":0,"moq":"","remark":"","supplier":"富富興業","monthly_usage":{"2024-09":14,"2024-10":26,"2024-11":5,"2024-12":2,"2025-01":0,"2025-02":0,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":48,"2025-10":26,"2025-11":25,"2025-12":0,"2026-01":12}},{"id":"A027","name":"K金保養布 / 單位：片","unit":"PCS","stock":66,"on_order":0,"moq":"","remark":"","supplier":"金統有限公司","monthly_usage":{"2024-09":2,"2024-10":3,"2024-11":0,"2024-12":9,"2025-01":9,"2025-02":4,"2025-03":12,"2025-04":3,"2025-05":0,"2025-06":0,"2025-07":3,"2025-08":0,"2025-09":8,"2025-10":8,"2025-11":3,"2025-12":0,"2026-01":5}},{"id":"A028","name":"鑽石保養布 / 單位：片","unit":"PCS","stock":33,"on_order":0,"moq":"","remark":"","supplier":"金統有限公司","monthly_usage":{"2024-09":4,"2024-10":12,"2024-11":4,"2024-12":17,"2025-01":6,"2025-02":10,"2025-03":16,"2025-04":4,"2025-05":0,"2025-06":5,"2025-07":0,"2025-08":0,"2025-09":19,"2025-10":11,"2025-11":6,"2025-12":0,"2026-01":9}},{"id":"A029","name":"不鏽鋼保養布 / 單位：片","unit":"PCS","stock":0,"on_order":0,"moq":"","remark":"","supplier":"CNL","monthly_usage":{"2024-09":2,"2024-10":11,"2024-11":0,"2024-12":7,"2025-01":1,"2025-02":1,"2025-03":2,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"A031","name":"GJ標價牌(銀) / 盒","unit":"PCS","stock":29,"on_order":0,"moq":"","remark":"","supplier":"美圖","monthly_usage":{"2024-09":1,"2024-10":0,"2024-11":0,"2024-12":0,"2025-01":4,"2025-02":1,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":1,"2025-11":0,"2025-12":0,"2026-01":1}},{"id":"A032","name":"GJ標價牌(金) / 盒","unit":"PCS","stock":28,"on_order":0,"moq":"","remark":"","supplier":"美圖","monthly_usage":{"2024-09":1,"2024-10":0,"2024-11":0,"2024-12":0,"2025-01":2,"2025-02":1,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"A034","name":"封箱膠帶(透明) / 卷","unit":"PCS","stock":152,"on_order":0,"moq":"","remark":"","supplier":"CNL","monthly_usage":{"2024-09":14,"2024-10":11,"2024-11":1,"2024-12":11,"2025-01":16,"2025-02":8,"2025-03":13,"2025-04":2,"2025-05":1,"2025-06":11,"2025-07":14,"2025-08":0,"2025-09":14,"2025-10":39,"2025-11":6,"2025-12":0,"2026-01":9}},{"id":"A035","name":"封箱膠帶(棕色) / 卷","unit":"PCS","stock":0,"on_order":0,"moq":"","remark":"","supplier":"CNL","monthly_usage":{"2024-09":2,"2024-10":18,"2024-11":0,"2024-12":4,"2025-01":10,"2025-02":4,"2025-03":7,"2025-04":0,"2025-05":3,"2025-06":11,"2025-07":3,"2025-08":10,"2025-09":3,"2025-10":7,"2025-11":7,"2025-12":0,"2026-01":3}},{"id":"A036","name":"手錶鏡面保護薄膜(5PCS/張)","unit":"張","stock":1490,"on_order":0,"moq":"","remark":"","supplier":"美圖","monthly_usage":{"2024-09":3,"2024-10":2,"2024-11":0,"2024-12":0,"2025-01":1,"2025-02":0,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":5,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":3,"2025-11":5,"2025-12":0,"2026-01":2}},{"id":"A038","name":"膠膜 / 卷","unit":"PCS","stock":6,"on_order":0,"moq":"","remark":"","supplier":"新洲全球","monthly_usage":{"2024-09":0,"2024-10":1,"2024-11":1,"2024-12":0,"2025-01":1,"2025-02":1,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":1,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":1,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"A040","name":"A箱250*200*155 mm","unit":"PCS","stock":64,"on_order":0,"moq":"","remark":"","supplier":"CNL","monthly_usage":{"2024-09":127,"2024-10":230,"2024-11":116,"2024-12":412,"2025-01":33,"2025-02":287,"2025-03":180,"2025-04":150,"2025-05":100,"2025-06":300,"2025-07":150,"2025-08":0,"2025-09":159,"2025-10":321,"2025-11":220,"2025-12":179,"2026-01":7}},{"id":"A041","name":"B箱360*255*200 mm","unit":"PCS","stock":40,"on_order":0,"moq":"","remark":"","supplier":"CNL","monthly_usage":{"2024-09":57,"2024-10":132,"2024-11":50,"2024-12":71,"2025-01":4,"2025-02":107,"2025-03":60,"2025-04":50,"2025-05":50,"2025-06":40,"2025-07":60,"2025-08":0,"2025-09":60,"2025-10":62,"2025-11":73,"2025-12":87,"2026-01":5}},{"id":"A042","name":"C箱400*350*305 mm","unit":"PCS","stock":0,"on_order":0,"moq":"","remark":"","supplier":"CNL","monthly_usage":{"2024-09":4,"2024-10":76,"2024-11":7,"2024-12":88,"2025-01":7,"2025-02":85,"2025-03":0,"2025-04":100,"2025-05":0,"2025-06":31,"2025-07":7,"2025-08":0,"2025-09":55,"2025-10":31,"2025-11":70,"2025-12":35,"2026-01":0}},{"id":"A043","name":"D箱900*405*400 mm/ 單位：個","unit":"PCS","stock":0,"on_order":0,"moq":"","remark":"","supplier":"CNL","monthly_usage":{"2024-09":0,"2024-10":0,"2024-11":0,"2024-12":0,"2025-01":0,"2025-02":0,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"A044","name":"S箱500*350*355 mm","unit":"PCS","stock":5,"on_order":0,"moq":"","remark":"","supplier":"CNL","monthly_usage":{"2024-09":0,"2024-10":130,"2024-11":61,"2024-12":52,"2025-01":0,"2025-02":11,"2025-03":2,"2025-04":34,"2025-05":16,"2025-06":0,"2025-07":5,"2025-08":0,"2025-09":0,"2025-10":2,"2025-11":30,"2025-12":49,"2026-01":3}},{"id":"A045","name":"M箱600*400*460 mm/ 單位：個","unit":"PCS","stock":0,"on_order":0,"moq":"","remark":"","supplier":"CNL","monthly_usage":{"2024-09":28,"2024-10":92,"2024-11":120,"2024-12":70,"2025-01":0,"2025-02":136,"2025-03":75,"2025-04":153,"2025-05":21,"2025-06":100,"2025-07":80,"2025-08":0,"2025-09":74,"2025-10":54,"2025-11":85,"2025-12":65,"2026-01":0}},{"id":"A046","name":"L箱650*450*505 mm","unit":"PCS","stock":0,"on_order":0,"moq":"","remark":"","supplier":"CNL","monthly_usage":{"2024-09":0,"2024-10":0,"2024-11":5,"2024-12":8,"2025-01":0,"2025-02":1,"2025-03":0,"2025-04":5,"2025-05":0,"2025-06":12,"2025-07":0,"2025-08":0,"2025-09":10,"2025-10":0,"2025-11":0,"2025-12":48,"2026-01":0}},{"id":"A047","name":"XL箱700*500*560 mm /  單位：個","unit":"PCS","stock":10,"on_order":0,"moq":"","remark":"","supplier":"CNL","monthly_usage":{"2024-09":0,"2024-10":0,"2024-11":0,"2024-12":0,"2025-01":0,"2025-02":0,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":15,"2025-09":10,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"A048","name":"E箱630*300*200 mm","unit":"PCS","stock":26,"on_order":0,"moq":"","remark":"","supplier":"CNL","monthly_usage":{"2024-09":0,"2024-10":0,"2024-11":10,"2024-12":0,"2025-01":0,"2025-02":30,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":5,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"A049","name":"XXL箱750*750*655 mm","unit":"PCS","stock":75,"on_order":0,"moq":"","remark":"","supplier":"CNL","monthly_usage":{"2024-09":0,"2024-10":0,"2024-11":0,"2024-12":0,"2025-01":0,"2025-02":0,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":7,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"A050","name":"氣泡捲","unit":"捲","stock":0,"on_order":0,"moq":"","remark":"","supplier":"CNL","monthly_usage":{"2024-09":0,"2024-10":0,"2024-11":0,"2024-12":1,"2025-01":3,"2025-02":0,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":2,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"A051","name":"客用水 / 箱","unit":"PCS","stock":67,"on_order":200,"moq":"MOQ 200","remark":"","supplier":"ordered by christine","monthly_usage":{"2024-09":42,"2024-10":86,"2024-11":14,"2024-12":31,"2025-01":73,"2025-02":20,"2025-03":36,"2025-04":19,"2025-05":5,"2025-06":30,"2025-07":58,"2025-08":0,"2025-09":35,"2025-10":79,"2025-11":40,"2025-12":0,"2026-01":36}},{"id":"A053","name":"麗寶洗銀水 / 瓶","unit":"PCS","stock":7,"on_order":0,"moq":"","remark":"","supplier":"金寶山","monthly_usage":{"2024-09":1,"2024-10":1,"2024-11":0,"2024-12":1,"2025-01":1,"2025-02":3,"2025-03":0,"2025-04":1,"2025-05":0,"2025-06":3,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":3,"2025-11":1,"2025-12":0,"2026-01":0}},{"id":"A054","name":"小拭銀布（贈品） -2024年9月新版 / 50入/包 / 單位：片","unit":"PCS","stock":0,"on_order":8000,"moq":"","remark":"","supplier":"富富興業/杰昇國際","monthly_usage":{"2024-09":0,"2024-10":3400,"2024-11":400,"2024-12":1059,"2025-01":460,"2025-02":250,"2025-03":3800,"2025-04":1150,"2025-05":24,"2025-06":1098,"2025-07":1120,"2025-08":52,"2025-09":1590,"2025-10":832,"2025-11":1468,"2025-12":165,"2026-01":1723}},{"id":"A055","name":"大拭銀布（販售用） - 2024年9月新版 / 25入/包 / 單位：片","unit":"PCS","stock":40,"on_order":900,"moq":"","remark":"","supplier":"富富興業/杰昇國際","monthly_usage":{"2024-09":0,"2024-10":100,"2024-11":50,"2024-12":105,"2025-01":145,"2025-02":50,"2025-03":50,"2025-04":20,"2025-05":0,"2025-06":50,"2025-07":25,"2025-08":0,"2025-09":325,"2025-10":70,"2025-11":95,"2025-12":0,"2026-01":310}},{"id":"A056","name":"珠寶商品說明小本-1包100本 / 單位:本","unit":"PCS","stock":7627,"on_order":0,"moq":"","remark":"","supplier":"Sophia","monthly_usage":{"2024-09":0,"2024-10":0,"2024-11":0,"2024-12":0,"2025-01":24,"2025-02":454,"2025-03":1900,"2025-04":800,"2025-05":0,"2025-06":2942,"2025-07":2055,"2025-08":245,"2025-09":1533,"2025-10":1342,"2025-11":1911,"2025-12":1030,"2026-01":1646}},{"id":"P001","name":"調撥單 / 本","unit":"PCS","stock":34,"on_order":0,"moq":"","remark":"","supplier":"ordered by christine","monthly_usage":{"2024-09":0,"2024-10":0,"2024-11":0,"2024-12":0,"2025-01":0,"2025-02":0,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":3,"2025-10":2,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"P002","name":"商品維護單 / 本","unit":"PCS","stock":15,"on_order":0,"moq":"","remark":"","supplier":"ordered by christine","monthly_usage":{"2024-09":16,"2024-10":19,"2024-11":4,"2024-12":7,"2025-01":12,"2025-02":3,"2025-03":10,"2025-04":9,"2025-05":0,"2025-06":3,"2025-07":6,"2025-08":0,"2025-09":8,"2025-10":10,"2025-11":7,"2025-12":0,"2026-01":5}},{"id":"P003","name":"GJ貴賓資料卡","unit":"PCS","stock":24,"on_order":0,"moq":"100","remark":"","supplier":"ordered by christine","monthly_usage":{"2024-09":12,"2024-10":33,"2024-11":12,"2024-12":27,"2025-01":28,"2025-02":8,"2025-03":23,"2025-04":14,"2025-05":0,"2025-06":10,"2025-07":16,"2025-08":0,"2025-09":18,"2025-10":35,"2025-11":6,"2025-12":3,"2026-01":16}},{"id":"P004","name":"直銷單 / 本","unit":"PCS","stock":2,"on_order":0,"moq":"","remark":"","supplier":"ordered by christine","monthly_usage":{"2024-09":0,"2024-10":0,"2024-11":0,"2024-12":1,"2025-01":1,"2025-02":0,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":1}},{"id":"P005","name":"付款確認單 / 本","unit":"PCS","stock":34,"on_order":0,"moq":"","remark":"","supplier":"ordered by christine","monthly_usage":{"2024-09":4,"2024-10":18,"2024-11":3,"2024-12":4,"2025-01":7,"2025-02":2,"2025-03":0,"2025-04":1,"2025-05":0,"2025-06":3,"2025-07":3,"2025-08":0,"2025-09":7,"2025-10":9,"2025-11":2,"2025-12":0,"2026-01":3}},{"id":"P006","name":"客戶協調單 / 本","unit":"PCS","stock":30,"on_order":0,"moq":"","remark":"","supplier":"ordered by christine","monthly_usage":{"2024-09":0,"2024-10":2,"2024-11":0,"2024-12":0,"2025-01":0,"2025-02":0,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":2,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"P007","name":"退換貨確認單 / 本","unit":"PCS","stock":17,"on_order":0,"moq":"","remark":"","supplier":"ordered by christine","monthly_usage":{"2024-09":0,"2024-10":0,"2024-11":0,"2024-12":0,"2025-01":0,"2025-02":0,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"A013","name":"氣泡袋-E_17.5x(24+26.5)cm","unit":"PCS","stock":0,"on_order":0,"moq":"","remark":"EC material","supplier":"CNL","monthly_usage":{"2024-09":0,"2024-10":0,"2024-11":300,"2024-12":200,"2025-01":0,"2025-02":0,"2025-03":500,"2025-04":0,"2025-05":0,"2025-06":500,"2025-07":0,"2025-08":0,"2025-09":100,"2025-10":200,"2025-11":200,"2025-12":250,"2026-01":20}},{"id":"A014","name":"氣泡袋-D_6.5x(7+9.5)cm","unit":"PCS","stock":1200,"on_order":0,"moq":"","remark":"EC material","supplier":"CNL","monthly_usage":{"2024-09":0,"2024-10":0,"2024-11":0,"2024-12":0,"2025-01":0,"2025-02":0,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"A015","name":"氣泡袋-F_27x(35+36)cm / MOMO寄倉專用 單位：個","unit":"PCS","stock":0,"on_order":0,"moq":"","remark":"EC material","supplier":"CNL","monthly_usage":{"2024-09":0,"2024-10":35,"2024-11":0,"2024-12":0,"2025-01":30,"2025-02":0,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":35,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"E001","name":"EC心意卡 / 單位:張","unit":"張","stock":2000,"on_order":0,"moq":"","remark":"EC material","supplier":"ordered by christine","monthly_usage":{"2024-09":118,"2024-10":156,"2024-11":170,"2024-12":168,"2025-01":144,"2025-02":106,"2025-03":0,"2025-04":0,"2025-05":47,"2025-06":111,"2025-07":56,"2025-08":147,"2025-09":258,"2025-10":176,"2025-11":171,"2025-12":275,"2026-01":254}},{"id":"E002","name":"2024年度系列小卡 /單位:張","unit":"張","stock":781,"on_order":0,"moq":"","remark":"EC material","supplier":"MD","monthly_usage":{"2024-09":3,"2024-10":8,"2024-11":11,"2024-12":4,"2025-01":5,"2025-02":6,"2025-03":0,"2025-04":0,"2025-05":2,"2025-06":0,"2025-07":2,"2025-08":3,"2025-09":2,"2025-10":2,"2025-11":1,"2025-12":3,"2026-01":1}},{"id":"E003","name":"2025年度系列說明卡 (100張/包)","unit":"張","stock":8917,"on_order":0,"moq":"","remark":"EC material","supplier":"MD","monthly_usage":{"2024-09":2,"2024-10":22,"2024-11":27,"2024-12":24,"2025-01":45,"2025-02":23,"2025-03":680,"2025-04":100,"2025-05":10,"2025-06":117,"2025-07":60,"2025-08":11,"2025-09":120,"2025-10":139,"2025-11":111,"2025-12":20,"2026-01":11}},{"id":"E006","name":"2026年度系列說明卡 (100張/包)","unit":"張","stock":1556,"on_order":0,"moq":"","remark":"EC material","supplier":"Sophia","monthly_usage":{"2024-09":0,"2024-10":0,"2024-11":0,"2024-12":0,"2025-01":0,"2025-02":0,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":510,"2025-08":13,"2025-09":550,"2025-10":587,"2025-11":483,"2025-12":121,"2026-01":191}},{"id":"A039","name":"牛皮紙袋 (200入/箱)","unit":"PCS","stock":1680,"on_order":0,"moq":"","remark":"not for retails","supplier":"","monthly_usage":{"2024-09":0,"2024-10":0,"2024-11":0,"2024-12":0,"2025-01":0,"2025-02":0,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":200,"2025-07":10,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"9820127","name":"WATCH BOX, LUX BOX (8PCS/CTN)","unit":"PCS","stock":83,"on_order":0,"moq":"","remark":"This is for high complicated watches and will dispatch along with product.","supplier":"","monthly_usage":{"2024-09":0,"2024-10":0,"2024-11":0,"2024-12":0,"2025-01":0,"2025-02":0,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"10019777","name":"珠寶盒 8.5*8.5*3(12 PCS)","unit":"PCS","stock":0,"on_order":0,"moq":"","remark":"Pls provide photo to define","supplier":"","monthly_usage":{"2024-09":0,"2024-10":0,"2024-11":0,"2024-12":0,"2025-01":0,"2025-02":0,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0}},{"id":"A052","name":"鐵箱 / 個","unit":"PCS","stock":0,"on_order":0,"moq":"","remark":"event usage when shipping big-size Silverware","supplier":"","monthly_usage":{"2024-09":0,"2024-10":0,"2024-11":0,"2024-12":0,"2025-01":0,"2025-02":0,"2025-03":0,"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":1,"2025-09":1,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0}}];const STORES_DATA=[{"warehouse_code":"GTWR04A","sr_name":"TPSKMHY","store_name":"信義新光","address":"110 台北市信義區松高路12號1F"},{"warehouse_code":"GTWR91A","sr_name":"TPFEA13","store_name":"信義A13","address":"110 台北市信義區松仁路58號2樓"},{"warehouse_code":"GTWR11A","sr_name":"TPSGFS","store_name":"SOGO 復興館","address":"106 台北市大安區忠孝東路三段300號4樓"},{"warehouse_code":"GTWR33A","sr_name":"TPSGCH","store_name":"SOGO忠孝店","address":"106 台北市大安區忠孝東路四段45號1樓"},{"warehouse_code":"GTWR22A","sr_name":"TPSGTM","store_name":"天母 SOGO","address":"111 台北市士林區中山北路六段77號1樓"},{"warehouse_code":"GTWR15A","sr_name":"TPFEPC","store_name":"板橋遠百","address":"220 新北市板橋區新站路28號2樓"},{"warehouse_code":"GTWR17A","sr_name":"HCFE","store_name":"新竹遠百","address":"300 新竹市西大路323號1樓"},{"warehouse_code":"GTWR34A","sr_name":"HCSGBC","store_name":"新竹巨城","address":"300 新竹市中央路239號1樓"},{"warehouse_code":"GTWR06A","sr_name":"TCSKM","store_name":"台中新光","address":"407 台中市西屯區臺灣大道三段301號 3F"},{"warehouse_code":"GTWR18A","sr_name":"TCFE","store_name":"台中遠百","address":"407 台中市西屯區臺灣大道三段251號 3F"},{"warehouse_code":"GTWR07A","sr_name":"TNSKM","store_name":"台南新光","address":"700 台南市中西區西門路一段658號1樓"},{"warehouse_code":"GTWR12A","sr_name":"KHDM","store_name":"夢時代購物中心","address":"806 高雄市前鎮區中華五路789號1樓"},{"warehouse_code":"GTWR16A","sr_name":"KHHSP","store_name":"漢神巨蛋","address":"813 高雄市左營區博愛二路777號 2樓"},{"warehouse_code":"GTWR26A","sr_name":"TPSGCHH","store_name":"忠孝 Home 店","address":"106 台北市大安區忠孝東路四段45號9樓"},{"warehouse_code":"GTWR94A","sr_name":"TPSGTMH","store_name":"天母 SOGO home店","address":"111 台北市士林區中山北路六段77號6樓"},{"warehouse_code":"GTWR35A","sr_name":"TPGC","store_name":"台北大巨蛋Garden City","address":"110055台北市忠孝東路四段505號2樓"},{"warehouse_code":"GTWR36A","sr_name":"TCHS","store_name":"台中漢神洲際","address":"406034台中市北屯區崇德路三段865號2樓"},{"warehouse_code":"GTWB01F","sr_name":"OFFICE","store_name":"GJ辦公室","address":"10502 台北市松山區八德路三段32號7樓"}];const MONTHS=["2024-09","2024-10","2024-11","2024-12","2025-01","2025-02","2025-03","2025-04","2025-05","2025-06","2025-07","2025-08","2025-09","2025-10","2025-11","2025-12","2026-01"];
+let items=JSON.parse(JSON.stringify(ITEMS_DATA));
+let orders=[];
+let currentUser=null;
+let editingItemId=null;
+let invCatFilter='全部';
+let invAlertOnly=false;
+let ordCatFilter='全部';
+let usageCatFilter='全部';
+let recFilter='all';
+let myOrdFilter='all';
 
-let items = [
-  {id:'3830419', name:'珠寶盒 12×12×11', cat:'珠寶盒', unit:'個', stock:45, annual:180, safeMonths:4},
-  {id:'3830421', name:'珠寶盒 17×12×13', cat:'珠寶盒', unit:'個', stock:30, annual:120, safeMonths:4, note:'1箱5個'},
-  {id:'3830423', name:'珠寶盒 27×18×19', cat:'珠寶盒', unit:'個', stock:28, annual:96,  safeMonths:4},
-  {id:'3830424', name:'珠寶盒 34×18×17', cat:'珠寶盒', unit:'個', stock:18, annual:96,  safeMonths:4},
-  {id:'3830425', name:'珠寶盒 31×34×29', cat:'珠寶盒', unit:'個', stock:6,  annual:60,  safeMonths:4, note:'1PCS/CTN'},
-  {id:'3830429', name:'珠寶盒 41×41×40', cat:'珠寶盒', unit:'個', stock:4,  annual:48,  safeMonths:4, note:'1PCS/CTN'},
-  {id:'3830431', name:'珠寶盒 33×33×5',  cat:'珠寶盒', unit:'個', stock:22, annual:96,  safeMonths:4},
-  {id:'3830443', name:'珠寶盒 50×45×57', cat:'珠寶盒', unit:'個', stock:3,  annual:36,  safeMonths:4, note:'1PCS/CTN'},
-  {id:'3830446', name:'珠寶盒 78×53×20', cat:'珠寶盒', unit:'個', stock:2,  annual:48,  safeMonths:4},
-  {id:'B001',    name:'購物袋 小',        cat:'購物袋', unit:'個', stock:200, annual:600, safeMonths:4},
-  {id:'B002',    name:'購物袋 中',        cat:'購物袋', unit:'個', stock:180, annual:720, safeMonths:4},
-  {id:'B003',    name:'購物袋 大',        cat:'購物袋', unit:'個', stock:60,  annual:360, safeMonths:4},
-  {id:'C001',    name:'說明卡（中文）',   cat:'說明卡', unit:'張', stock:500, annual:2400, safeMonths:4},
-  {id:'C002',    name:'說明卡（英文）',   cat:'說明卡', unit:'張', stock:80,  annual:600,  safeMonths:4},
-  {id:'D001',    name:'拭銀布（小）',     cat:'拭銀布', unit:'條', stock:300, annual:1200, safeMonths:4},
-  {id:'D002',    name:'拭銀布（大）',     cat:'拭銀布', unit:'條', stock:45,  annual:360,  safeMonths:4},
-  {id:'E001',    name:'氣泡袋 10×15',    cat:'氣泡袋', unit:'個', stock:400, annual:1800, safeMonths:4},
-  {id:'F001',    name:'緞帶（金色）',     cat:'緞帶',   unit:'條', stock:12,  annual:240,  safeMonths:4},
-  {id:'F002',    name:'緞帶（黑色）',     cat:'緞帶',   unit:'條', stock:8,   annual:180,  safeMonths:4},
-  {id:'G001',    name:'手套（白棉）',     cat:'手套',   unit:'雙', stock:50,  annual:360,  safeMonths:4},
-];
+const CATS=['全部',...new Set(items.map(i=>i.cat||'其他'))];
 
-let orders = [
-  {id:'GJ-0041', store:'信義旗艦店', storeCode:'ST-001', date:'2025-03-10', status:'已完成', items:[{id:'3830419',name:'珠寶盒 12×12×11',qty:10},{id:'B001',name:'購物袋 小',qty:50}]},
-  {id:'GJ-0040', store:'南西門市',   storeCode:'ST-002', date:'2025-03-08', status:'處理中', items:[{id:'C001',name:'說明卡（中文）',qty:100}]},
-  {id:'GJ-0039', store:'新竹巨城',   storeCode:'HK-001', date:'2025-03-05', status:'已完成', items:[{id:'D001',name:'拭銀布（小）',qty:30},{id:'B002',name:'購物袋 中',qty:20}]},
-  {id:'GJ-0038', store:'台中勤美',   storeCode:'TC-001', date:'2025-02-28', status:'待確認', items:[{id:'3830446',name:'珠寶盒 78×53×20',qty:5},{id:'F001',name:'緞帶（金色）',qty:10}]},
-  {id:'GJ-0037', store:'台南新光',   storeCode:'TN-001', date:'2025-02-20', status:'已完成', items:[{id:'G001',name:'手套（白棉）',qty:20}]},
-];
+const ACCOUNTS={'MANAGER':{role:'manager',pw:'gjlogistics',displayName:'總公司物流部',role_label:'物流經理 · 全權限'},'WAREHOUSE':{role:'warehouse',pw:'gjwarehouse',displayName:'總部倉庫',role_label:'倉庫人員'}};
+STORES_DATA.forEach(s=>{ACCOUNTS[s.sr_name.toUpperCase()]={role:'store',pw:s.warehouse_code.toLowerCase(),displayName:s.store_name,role_label:s.warehouse_code,srName:s.sr_name,warehouseCode:s.warehouse_code,storeName:s.store_name};});
 
-let currentRole = 'manager';
-let currentView = 'overview';
-let editingItemId = null;
-let invCatFilter = '全部';
-let ordCatFilter = '全部';
-let recFilter = 'all';
-
-const STORES = [
-  '信義旗艦店','南西門市','新竹巨城','台中勤美','台南新光',
-  '高雄漢神','板橋新埔','桃園統領','台中中港','台北SOGO',
-  '新竹遠百','嘉義耐斯','高雄夢時代','台南南紡','花蓮遠百'
-];
-const STORE_CODES = ['ST-001','ST-002','HK-001','TC-001','TN-001','KH-001','BQ-001','TY-001','TC-002','TB-001','HC-001','CY-001','KH-002','TN-002','HL-001'];
-
-// ─── HELPERS ────────────────────────────────────────────
-function safeLevel(item) {
-  if (!item.annual) return {level:100, status:'ok'};
-  const safeQty = item.annual / 12 * item.safeMonths;
-  const lvl = Math.min(100, Math.round(item.stock / safeQty * 100));
-  const status = lvl <= 0 ? 'danger' : lvl < 50 ? 'low' : 'ok';
-  return {level: lvl, status, safeQty: Math.round(safeQty)};
+function doLogin(){
+  const u=document.getElementById('li-user').value.trim().toUpperCase();
+  const p=document.getElementById('li-pass').value;
+  const acc=ACCOUNTS[u];
+  if(!acc||acc.pw!==p){document.getElementById('login-err').style.display='block';return;}
+  document.getElementById('login-err').style.display='none';
+  currentUser={...acc,username:u};
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('sidebar').style.display='flex';
+  document.getElementById('main-area').style.display='flex';
+  initUI();
 }
-function lowItems() { return items.filter(i => safeLevel(i).status !== 'ok'); }
-
-function toast(msg, type='') {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.className = 'toast show ' + type;
-  setTimeout(() => t.className = 'toast', 2600);
+function doLogout(){
+  currentUser=null;
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('sidebar').style.display='none';
+  document.getElementById('main-area').style.display='none';
+  document.getElementById('li-user').value='';
+  document.getElementById('li-pass').value='';
 }
-
-function statusClass(s) {
-  if (s==='已完成') return 'done';
-  if (s==='處理中') return 'processing';
-  if (s==='待確認') return 'pending';
-  if (s==='待出庫') return 'confirm';
-  return '';
-}
-
-function openModal(id)  { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-function nextOrderId() {
-  const max = orders.reduce((m,o) => Math.max(m, parseInt(o.id.replace('GJ-',''))||0), 0);
-  return 'GJ-' + String(max+1).padStart(4,'0');
-}
-
-// ─── ROLE ────────────────────────────────────────────────
-function switchRole(role) {
-  currentRole = role;
-  const nav = document.getElementById('nav-area');
-  const avEl = document.getElementById('av-initials');
-  const nameEl = document.getElementById('account-name');
-  const roleEl = document.getElementById('account-role');
-
-  let navItems = [];
-
-  if (role === 'manager') {
-    avEl.textContent = 'LM'; nameEl.textContent = '物流經理'; roleEl.textContent = '總部 · 全權限';
-    navItems = [
-      {id:'overview', label:'總覽', icon:homeIcon()},
-      {id:'inventory', label:'庫存管理', icon:boxIcon()},
-      {id:'records', label:'訂購紀錄', icon:listIcon()},
-      {id:'receiving', label:'入庫作業', icon:inboxIcon()},
-    ];
-    showView('overview');
-  } else if (role === 'warehouse') {
-    avEl.textContent = 'WH'; nameEl.textContent = '總部倉庫'; roleEl.textContent = '倉庫人員';
-    navItems = [
-      {id:'inventory', label:'庫存管理', icon:boxIcon()},
-      {id:'receiving', label:'入庫作業', icon:inboxIcon()},
-    ];
-    showView('inventory');
+function initUI(){
+  const u=currentUser;
+  document.getElementById('av').textContent=u.displayName.slice(0,2);
+  document.getElementById('av-name').textContent=u.displayName;
+  document.getElementById('av-role').textContent=u.role_label;
+  let navItems=[];
+  if(u.role==='manager'){
+    navItems=[{id:'overview',label:'總覽',icon:homeIco()},{id:'inventory',label:'庫存管理',icon:boxIco()},{id:'usage',label:'月使用量分析',icon:chartIco()},{id:'records',label:'訂購紀錄',icon:listIco()},{id:'receiving',label:'入庫作業',icon:inboxIco()}];
+  } else if(u.role==='warehouse'){
+    navItems=[{id:'inventory',label:'庫存管理',icon:boxIco()},{id:'receiving',label:'入庫作業',icon:inboxIco()}];
   } else {
-    const idx = Math.floor(Math.random()*15);
-    avEl.textContent = 'ST'; nameEl.textContent = STORES[idx]; roleEl.textContent = '門市店長';
-    navItems = [
-      {id:'order', label:'訂購包材', icon:cartIcon()},
-    ];
-    showView('order');
+    navItems=[{id:'order',label:'訂購包材',icon:cartIco()},{id:'my-orders',label:'我的訂單',icon:listIco()}];
   }
-
-  nav.innerHTML = navItems.map(n => `
-    <div class="nav-item ${n.id===currentView?'active':''}" id="nav-${n.id}" onclick="showView('${n.id}')">
-      ${n.icon} ${n.label}
-      ${n.id==='overview' && lowItems().length > 0 ? `<span class="nav-badge">${lowItems().length}</span>` : ''}
-    </div>
-  `).join('');
+  const nav=document.getElementById('nav-area');
+  nav.innerHTML=navItems.map(n=>`<div class="nav-item" id="nav-${n.id}" onclick="showView('${n.id}')">${n.icon} ${n.label}${n.id==='overview'?'<span class="nav-badge" id="nav-badge" style="display:none">0</span>':''}</div>`).join('');
+  document.getElementById('inv-add-btn').style.display=u.role==='manager'?'':'none';
+  showView(navItems[0].id);
 }
 
-// ─── NAVIGATION ─────────────────────────────────────────
-function showView(v) {
-  currentView = v;
-  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-  document.getElementById('view-' + v)?.classList.add('active');
+function avgMonthly(item){const vals=Object.values(item.monthly_usage).filter(v=>v>0);if(!vals.length)return 0;return vals.reduce((a,b)=>a+b,0)/vals.length;}
+function safeQty(item){return Math.round(avgMonthly(item)*4);}
+function stockStatus(item){
+  const sq=safeQty(item);
+  if(!sq)return{status:'ok',pct:100,label:'無用量',cls:'ok-tag'};
+  const p=Math.round((item.stock/sq)*100);
+  if(p<=0)return{status:'danger',pct:0,label:'庫存不足',cls:'danger-tag'};
+  if(p<100)return{status:'low',pct:p,label:'偏低',cls:'warn-tag'};
+  return{status:'ok',pct:Math.min(p,200),label:'正常',cls:'ok-tag'};
+}
+function lowItems(){return items.filter(i=>stockStatus(i).status!=='ok');}
+function toast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+type;setTimeout(()=>t.className='toast',2800);}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function nextOrderId(){const max=orders.reduce((m,o)=>Math.max(m,parseInt(o.id.replace('GJ-',''))||0),0);return'GJ-'+String(max+1).padStart(4,'0');}
+function badgeClass(s){if(s==='已完成')return'done';if(s==='處理中')return'processing';return'pending';}
 
-  const titles = {overview:'總覽', inventory:'庫存管理', order:'新增訂購', records:'訂購紀錄', receiving:'入庫作業'};
-  document.getElementById('page-title').textContent = titles[v] || v;
-
-  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-  document.getElementById('nav-' + v)?.classList.add('active');
-
-  if (v === 'overview') renderOverview();
-  if (v === 'inventory') renderInventory();
-  if (v === 'order') renderOrderItems();
-  if (v === 'records') renderRecords();
-  if (v === 'receiving') renderReceiving();
+function showView(v){
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.getElementById('view-'+v)?.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  document.getElementById('nav-'+v)?.classList.add('active');
+  const titles={overview:'總覽',inventory:'庫存管理',usage:'月使用量分析',order:'新增訂購','my-orders':'我的訂單',records:'訂購紀錄',receiving:'入庫作業'};
+  document.getElementById('page-title').textContent=titles[v]||v;
+  if(v==='overview')renderOverview();
+  if(v==='inventory')renderInv();
+  if(v==='usage')renderUsage();
+  if(v==='order')renderOrderItems();
+  if(v==='my-orders')renderMyOrders();
+  if(v==='records')renderRecords();
+  if(v==='receiving')renderReceiving();
 }
 
-// ─── OVERVIEW ────────────────────────────────────────────
-function renderOverview() {
-  const low = lowItems();
-  const pending = orders.filter(o => o.status === '待確認').length;
-  const monthOrders = orders.length;
-
-  document.getElementById('stat-total').textContent = items.length;
-  document.getElementById('stat-low').textContent = low.length;
-  document.getElementById('stat-orders').textContent = monthOrders;
-  document.getElementById('stat-pending').textContent = pending;
-
-  // banner
-  const banner = document.getElementById('alert-banner');
-  const bannerText = document.getElementById('alert-banner-text');
-  if (low.length > 0) {
-    banner.style.display = 'flex';
-    bannerText.textContent = `${low.length} 項商品庫存低於安全水位。`;
-  } else {
-    banner.style.display = 'none';
-  }
-
-  // alert list
-  const al = document.getElementById('alert-list');
-  if (low.length === 0) {
-    al.innerHTML = '<div class="empty">✓ 所有品項庫存正常</div>';
-  } else {
-    al.innerHTML = low.map(item => {
-      const {level, status, safeQty} = safeLevel(item);
-      return `<div class="alert-row">
-        <div class="alert-dot ${status}"></div>
-        <div class="alert-name">${item.name}</div>
-        <div class="alert-stock">${item.stock} ${item.unit}</div>
-        <div class="alert-safe">/ 安全 ${safeQty}</div>
-        <div class="alert-tag ${status}">${status === 'danger' ? '庫存不足' : '偏低'}</div>
-      </div>`;
-    }).join('');
-  }
-
-  // recent orders
-  const ro = document.getElementById('recent-orders');
-  const recent = [...orders].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
-  ro.innerHTML = recent.map(o => `
-    <div class="order-row" style="cursor:pointer" onclick="openOrderDetail('${o.id}')">
-      <div class="order-id">${o.id}</div>
-      <div class="order-store">${o.store}</div>
-      <div class="order-date">${o.date}</div>
-      <span class="status-badge ${statusClass(o.status)}">${o.status}</span>
-    </div>
-  `).join('');
+function renderOverview(){
+  const low=lowItems();
+  const pending=orders.filter(o=>o.status==='待確認').length;
+  document.getElementById('s-total').textContent=items.length;
+  document.getElementById('s-low').textContent=low.length;
+  document.getElementById('s-orders').textContent=orders.length;
+  document.getElementById('s-pending').textContent=pending;
+  const nb=document.getElementById('nav-badge');
+  if(nb){nb.textContent=low.length;nb.style.display=low.length?'':'none';}
+  const banner=document.getElementById('ov-banner');
+  if(low.length){banner.style.display='flex';document.getElementById('ov-banner-text').textContent=low.length+' 項商品庫存低於4個月安全水位。';}
+  else banner.style.display='none';
+  const al=document.getElementById('ov-alerts');
+  if(!low.length){al.innerHTML='<div class="empty">✓ 所有品項庫存正常</div>';return;}
+  al.innerHTML=low.slice(0,8).map(item=>{
+    const s=stockStatus(item);
+    return '<div class="oa-row"><div class="oa-dot '+(s.status==='danger'?'d':'w')+'"></div><div class="oa-name">'+item.id+' '+item.name+'</div><div class="oa-stock">'+item.stock+' '+item.unit+'</div><div class="oa-safe">安全水位 '+safeQty(item)+'</div><span class="badge '+s.cls+'">'+s.label+'</span></div>';
+  }).join('')+(low.length>8?'<div class="empty" style="padding:8px">還有 '+(low.length-8)+' 項...</div>':'');
+  const ro=document.getElementById('ov-orders');
+  if(!orders.length){ro.innerHTML='<div class="empty">無訂單紀錄</div>';return;}
+  ro.innerHTML=[...orders].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5).map(o=>`<div class="or-row" onclick="openOrderDetail('${o.id}')"><div class="or-id">${o.id}</div><div class="or-store">${o.store}</div><div class="or-date">${o.date}</div><span class="badge ${badgeClass(o.status)}">${o.status}</span></div>`).join('');
 }
 
-// ─── INVENTORY ───────────────────────────────────────────
-function renderInventory() {
-  // chips
-  const chips = document.getElementById('inv-chips');
-  chips.innerHTML = CATEGORIES.map(c => `
-    <button class="chip ${c===invCatFilter?'active':''}" onclick="setInvCat('${c}')">${c}</button>
-  `).join('');
+function renderInv(){
+  const chips=document.getElementById('inv-chips');
+  chips.innerHTML=CATS.map(c=>`<button class="chip ${c===invCatFilter?'active':''}" onclick="setInvCat('${c}')">${c}</button>`).join('');
+  const q=document.getElementById('inv-q').value.toLowerCase();
+  let list=items.filter(i=>(invCatFilter==='全部'||i.cat===invCatFilter)&&(i.name.toLowerCase().includes(q)||i.id.includes(q)));
+  if(invAlertOnly)list=list.filter(i=>stockStatus(i).status!=='ok');
+  const isM=currentUser.role==='manager';
+  const tbody=document.getElementById('inv-body');
+  if(!list.length){tbody.innerHTML='<tr><td colspan="8" class="empty">無符合品項</td></tr>';return;}
+  tbody.innerHTML=list.map(item=>{
+    const s=stockStatus(item);const sq=safeQty(item);
+    return `<tr><td class="mono text3">${item.id}</td><td><div style="font-weight:500">${item.name}</div>${item.moq?`<div class="td-sub">${item.moq}</div>`:''}</td><td class="text3">${item.unit}</td><td class="td-r mono">${item.stock}</td><td class="td-r mono text3">${item.on_order||0}</td><td class="td-r mono text3">${sq||'—'}</td><td><div class="level-wrap"><div class="level-bar"><div class="lf ${s.status}" style="width:${Math.min(100,Math.max(2,s.pct))}%"></div></div><span class="badge ${s.cls}">${s.label}</span></div></td><td>${isM?`<button class="btn btn-outline btn-sm" onclick="openEditItem('${item.id}')">編輯</button>`:''}</td></tr>`;
+  }).join('');
+}
+function setInvCat(c){invCatFilter=c;renderInv();}
+function toggleAlertOnly(){
+  invAlertOnly=!invAlertOnly;
+  const btn=document.getElementById('inv-alert-btn');
+  btn.textContent=invAlertOnly?'✕ 取消篩選':'⚠ 僅顯示警示';
+  btn.className=invAlertOnly?'btn btn-primary btn-sm':'btn btn-outline btn-sm';
+  renderInv();
+}
 
-  const q = document.getElementById('inv-search').value.toLowerCase();
-  let list = items.filter(i =>
-    (invCatFilter === '全部' || i.cat === invCatFilter) &&
-    (i.name.toLowerCase().includes(q) || i.id.includes(q))
-  );
+function renderUsage(){
+  const chips=document.getElementById('usage-chips');
+  chips.innerHTML=CATS.map(c=>`<button class="chip ${c===usageCatFilter?'active':''}" onclick="setUsageCat('${c}')">${c}</button>`).join('');
+  const q=document.getElementById('usage-q').value.toLowerCase();
+  let list=items.filter(i=>(usageCatFilter==='全部'||i.cat===usageCatFilter)&&(i.name.toLowerCase().includes(q)||i.id.includes(q)));
+  const thead=document.getElementById('usage-thead');
+  thead.innerHTML='<tr><th>貨號</th><th style="min-width:180px">品名</th><th class="r">現有</th><th class="r">安全水位</th><th class="r">月均</th><th class="r">剩餘月數</th>'+MONTHS.map(m=>'<th class="r">'+m+'</th>').join('')+'</tr>';
+  const tbody=document.getElementById('usage-body');
+  tbody.innerHTML=list.map(item=>{
+    const sq=safeQty(item);const avg=avgMonthly(item);
+    const ml=avg>0?(item.stock/avg).toFixed(1):'∞';
+    const s=stockStatus(item);
+    return '<tr><td class="mono text3" style="font-size:12px">'+item.id+'</td><td class="name-col">'+item.name+'</td><td class="uc '+(item.stock>0?'has':'zero')+'">'+item.stock+'</td><td class="uc text3">'+(sq||'—')+'</td><td class="uc text3">'+(avg>0?avg.toFixed(1):'—')+'</td><td class="uc"><span class="badge '+s.cls+'">'+ml+'</span></td>'+MONTHS.map(m=>{const v=item.monthly_usage[m]||0;return '<td class="uc '+(v>0?'has':'zero')+'">'+(v>0?v:'—')+'</td>';}).join('')+'</tr>';
+  }).join('');
+}
+function setUsageCat(c){usageCatFilter=c;renderUsage();}
 
-  const tbody = document.getElementById('inv-body');
-  if (list.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="8" class="empty">無符合的品項</td></tr>';
-    return;
-  }
+function populateCatSelect(){
+  const sel=document.getElementById('it-cat');
+  sel.innerHTML=CATS.filter(c=>c!=='全部').map(c=>`<option>${c}</option>`).join('');
+}
+function openAddItem(){
+  editingItemId=null;
+  document.getElementById('item-modal-title').textContent='新增品項';
+  populateCatSelect();
+  ['it-code','it-name','it-unit','it-supplier','it-moq','it-remark'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('it-stock').value=0;document.getElementById('it-onorder').value=0;
+  openModal('modal-item');
+}
+function openEditItem(id){
+  const item=items.find(i=>i.id===id);if(!item)return;
+  editingItemId=id;
+  document.getElementById('item-modal-title').textContent='編輯品項';
+  populateCatSelect();
+  document.getElementById('it-code').value=item.id;
+  document.getElementById('it-name').value=item.name;
+  document.getElementById('it-unit').value=item.unit;
+  document.getElementById('it-cat').value=item.cat||'其他';
+  document.getElementById('it-supplier').value=item.supplier||'';
+  document.getElementById('it-stock').value=item.stock;
+  document.getElementById('it-onorder').value=item.on_order||0;
+  document.getElementById('it-moq').value=item.moq||'';
+  document.getElementById('it-remark').value=item.remark||'';
+  openModal('modal-item');
+}
+function saveItem(){
+  const code=document.getElementById('it-code').value.trim();
+  const name=document.getElementById('it-name').value.trim();
+  const unit=document.getElementById('it-unit').value.trim();
+  if(!code||!name||!unit){toast('請填寫必要欄位','err');return;}
+  const obj={id:code,name,unit,cat:document.getElementById('it-cat').value,supplier:document.getElementById('it-supplier').value,stock:parseInt(document.getElementById('it-stock').value)||0,on_order:parseInt(document.getElementById('it-onorder').value)||0,moq:document.getElementById('it-moq').value,remark:document.getElementById('it-remark').value,monthly_usage:editingItemId?(items.find(i=>i.id===editingItemId)?.monthly_usage||{}):{} };
+  if(editingItemId){const idx=items.findIndex(i=>i.id===editingItemId);if(idx>=0)items[idx]=obj;toast('品項已更新','ok');}
+  else{if(items.find(i=>i.id===code)){toast('貨號已存在','err');return;}items.push(obj);toast('品項已新增','ok');}
+  closeModal('modal-item');renderInv();
+}
 
-  tbody.innerHTML = list.map(item => {
-    const {level, status, safeQty} = safeLevel(item);
-    return `<tr>
-      <td class="td-code">${item.id}</td>
-      <td>
-        <div class="td-name">${item.name}</div>
-        ${item.note ? `<div class="td-sub">${item.note}</div>` : ''}
-      </td>
-      <td><span class="cat-pill">${item.cat}</span></td>
-      <td style="color:var(--text3)">${item.unit}</td>
-      <td style="text-align:right"><span class="td-num">${item.stock}</span></td>
-      <td style="text-align:right"><span class="td-num" style="color:var(--text3)">${safeQty}</span></td>
-      <td>
-        <div class="level-wrap">
-          <div class="level-bar"><div class="level-fill ${status}" style="width:${Math.max(2,level)}%"></div></div>
-          <div class="level-text">${level}%</div>
-        </div>
-      </td>
-      <td>
-        <div style="display:flex;gap:6px">
-          ${currentRole==='manager' ? `<button class="btn btn-outline btn-sm" onclick="openEditItem('${item.id}')">編輯</button>` : ''}
-          ${currentRole==='manager' ? `<button class="btn btn-outline btn-sm" onclick="orderItem('${item.id}')">快速訂購</button>` : ''}
-        </div>
-      </td>
-    </tr>`;
+function renderOrderItems(){
+  const u=currentUser;
+  document.getElementById('order-info-bar').innerHTML='訂購門市：<strong>'+u.storeName+'</strong> &nbsp;·&nbsp; Warehouse Code：<strong>'+u.warehouseCode+'</strong>';
+  const chips=document.getElementById('ord-chips');
+  chips.innerHTML=CATS.map(c=>`<button class="chip ${c===ordCatFilter?'active':''}" onclick="setOrdCat('${c}')">${c}</button>`).join('');
+  const q=document.getElementById('ord-q').value.toLowerCase();
+  let list=items.filter(i=>(ordCatFilter==='全部'||i.cat===ordCatFilter)&&i.name.toLowerCase().includes(q));
+  document.getElementById('ord-body').innerHTML=list.map(item=>`<tr><td class="mono text3" style="font-size:12px">${item.id}</td><td><div style="font-weight:500">${item.name}</div>${item.moq?`<div class="td-sub">${item.moq}</div>`:''}</td><td class="text3">${item.unit}</td><td class="td-r"><input type="number" class="qty-input" id="oq-${item.id}" min="0" value="0" oninput="updateOrdCount()"></td></tr>`).join('');
+  updateOrdCount();
+}
+function setOrdCat(c){ordCatFilter=c;renderOrderItems();}
+function updateOrdCount(){let n=0;document.querySelectorAll('.qty-input').forEach(el=>{if(parseInt(el.value)>0)n++;});document.getElementById('ord-count').textContent=n;}
+function submitOrder(){
+  const u=currentUser;
+  const oi=[];
+  items.forEach(item=>{const el=document.getElementById('oq-'+item.id);if(el&&parseInt(el.value)>0)oi.push({id:item.id,name:item.name,qty:parseInt(el.value)});});
+  if(!oi.length){toast('請選擇至少一項商品','err');return;}
+  const o={id:nextOrderId(),store:u.storeName,warehouseCode:u.warehouseCode,srName:u.srName,date:new Date().toISOString().slice(0,10),status:'待確認',items:oi};
+  orders.unshift(o);toast('訂單 '+o.id+' 已送出','ok');renderOrderItems();
+}
+
+function setMyOrdFilter(f,el){myOrdFilter=f;document.querySelectorAll('#my-ord-chips .chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderMyOrders();}
+function renderMyOrders(){
+  const u=currentUser;
+  let list=orders.filter(o=>o.srName===u.srName);
+  if(myOrdFilter!=='all')list=list.filter(o=>o.status===myOrdFilter);
+  const tbody=document.getElementById('my-ord-body');
+  if(!list.length){tbody.innerHTML='<tr><td colspan="5" class="empty">無訂單紀錄</td></tr>';return;}
+  tbody.innerHTML=list.map(o=>`<tr><td class="mono" style="font-size:13px">${o.id}</td><td class="text3">${o.date}</td><td class="text3">${o.items.length} 項</td><td><span class="badge ${badgeClass(o.status)}">${o.status}</span></td><td><button class="btn btn-outline btn-sm" onclick="openOrderDetail('${o.id}')">查看</button></td></tr>`).join('');
+}
+
+function setRecFilter(f,el){recFilter=f;document.querySelectorAll('#rec-chips .chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderRecords();}
+function renderRecords(){
+  let list=recFilter==='all'?orders:orders.filter(o=>o.status===recFilter);
+  const tbody=document.getElementById('rec-body');
+  if(!list.length){tbody.innerHTML='<tr><td colspan="7" class="empty">無訂單紀錄</td></tr>';return;}
+  tbody.innerHTML=list.map(o=>{
+    let btns=`<button class="btn btn-outline btn-sm" onclick="openOrderDetail('${o.id}')">查看</button>`;
+    if(o.status==='待確認') btns+=` <button class="btn btn-primary btn-sm" onclick="advanceOrder('${o.id}')">處理</button>`;
+    if(o.status==='處理中') btns+=` <button class="btn btn-primary btn-sm" onclick="completeOrder('${o.id}')">完成</button>`;
+    return `<tr><td class="mono" style="font-size:13px">${o.id}</td><td style="font-weight:500">${o.store}</td><td class="mono text3">${o.warehouseCode||'—'}</td><td class="text3">${o.date}</td><td class="text3">${o.items.length} 項</td><td><span class="badge ${badgeClass(o.status)}">${o.status}</span></td><td><div style="display:flex;gap:5px">${btns}</div></td></tr>`;
   }).join('');
 }
 
-function setInvCat(c) { invCatFilter = c; renderInventory(); }
-
-// ─── ITEM MODAL ──────────────────────────────────────────
-function openAddItem() {
-  editingItemId = null;
-  document.getElementById('item-modal-title').textContent = '新增品項';
-  ['item-code','item-name','item-unit','item-stock','item-annual'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('item-safemonths').value = 4;
-  openModal('modal-item');
+function openOrderDetail(id){
+  const o=orders.find(x=>x.id===id);if(!o)return;
+  document.getElementById('od-title').textContent=o.id+' — '+o.store;
+  const rows=o.items.map(i=>`<tr><td style="padding:8px 10px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace;font-size:12px;color:var(--text3)">${i.id}</td><td style="padding:8px 10px;border-bottom:1px solid var(--border)">${i.name}</td><td style="padding:8px 10px;border-bottom:1px solid var(--border);text-align:right;font-family:'DM Mono',monospace">${i.qty}</td></tr>`).join('');
+  document.getElementById('od-body').innerHTML=`<div style="display:flex;gap:20px;font-size:13px;color:var(--text2);margin-bottom:14px"><span>日期：<strong>${o.date}</strong></span><span>Warehouse：<strong>${o.warehouseCode||'—'}</strong></span><span>狀態：<span class="badge ${badgeClass(o.status)}">${o.status}</span></span></div><table style="width:100%"><thead><tr><th style="text-align:left;padding:7px 10px;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;background:var(--surface2)">貨號</th><th style="text-align:left;padding:7px 10px;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;background:var(--surface2)">品名</th><th style="text-align:right;padding:7px 10px;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;background:var(--surface2)">數量</th></tr></thead><tbody>${rows}</tbody></table>`;
+  const isM=currentUser.role==='manager';
+  let f=`<button class="btn btn-outline" onclick="closeModal('modal-order')">關閉</button>`;
+  if(isM&&o.status==='待確認') f+=` <button class="btn btn-primary" onclick="advanceOrder('${o.id}');closeModal('modal-order')">開始處理</button>`;
+  if(isM&&o.status==='處理中') f+=` <button class="btn btn-primary" onclick="completeOrder('${o.id}');closeModal('modal-order')">確認完成並扣庫存</button>`;
+  document.getElementById('od-footer').innerHTML=f;
+  openModal('modal-order');
+}
+function advanceOrder(id){const o=orders.find(x=>x.id===id);if(o){o.status='處理中';renderRecords();renderOverview();toast(o.id+' 狀態更新為處理中');}}
+function completeOrder(id){
+  const o=orders.find(x=>x.id===id);if(!o)return;
+  o.items.forEach(oi=>{const item=items.find(i=>i.id===oi.id);if(item)item.stock=Math.max(0,item.stock-oi.qty);});
+  o.status='已完成';renderRecords();renderOverview();toast(o.id+' 已完成，庫存已扣減','ok');
 }
 
-function openEditItem(id) {
-  const item = items.find(i => i.id === id);
-  if (!item) return;
-  editingItemId = id;
-  document.getElementById('item-modal-title').textContent = '編輯品項';
-  document.getElementById('item-code').value = item.id;
-  document.getElementById('item-name').value = item.name;
-  document.getElementById('item-unit').value = item.unit;
-  document.getElementById('item-cat').value = item.cat;
-  document.getElementById('item-stock').value = item.stock;
-  document.getElementById('item-annual').value = item.annual;
-  document.getElementById('item-safemonths').value = item.safeMonths;
-  openModal('modal-item');
+function renderReceiving(){
+  document.getElementById('recv-date').value=new Date().toISOString().slice(0,10);
+  document.getElementById('recv-body').innerHTML=items.map(item=>`<div class="recv-row"><div class="recv-name"><div>${item.name}</div><div class="recv-sub">${item.id} · ${item.cat||''}</div></div><div class="recv-cur">${item.stock}</div><input type="number" class="recv-qty" id="rq-${item.id}" min="0" placeholder="0" oninput="updateRecvAfter('${item.id}')"><div class="recv-after" id="ra-${item.id}">—</div></div>`).join('');
+}
+function updateRecvAfter(id){const item=items.find(i=>i.id===id);const el=document.getElementById('rq-'+id);const qty=parseInt(el.value)||0;document.getElementById('ra-'+id).textContent=qty>0?(item.stock+qty):'—';}
+function clearRecv(){document.querySelectorAll('.recv-qty').forEach(el=>el.value='');document.querySelectorAll('[id^="ra-"]').forEach(el=>el.textContent='—');toast('已清除');}
+function confirmRecv(){
+  let n=0;items.forEach(item=>{const el=document.getElementById('rq-'+item.id);const qty=parseInt(el?.value)||0;if(qty>0){item.stock+=qty;n++;}});
+  if(!n){toast('請輸入至少一項入庫數量','err');return;}
+  toast('已入庫 '+n+' 項商品','ok');renderReceiving();renderOverview();
 }
 
-function saveItem() {
-  const code = document.getElementById('item-code').value.trim();
-  const name = document.getElementById('item-name').value.trim();
-  const unit = document.getElementById('item-unit').value.trim();
-  const cat  = document.getElementById('item-cat').value;
-  const stock = parseInt(document.getElementById('item-stock').value) || 0;
-  const annual = parseInt(document.getElementById('item-annual').value) || 0;
-  const safeMonths = parseInt(document.getElementById('item-safemonths').value) || 4;
+function homeIco(){return'<svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1z"/><path d="M9 21V12h6v9"/></svg>';}
+function boxIco(){return'<svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/></svg>';}
+function chartIco(){return'<svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>';}
+function listIco(){return'<svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>';}
+function inboxIco(){return'<svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>';}
+function cartIco(){return'<svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>';}
 
-  if (!code || !name || !unit) { toast('請填寫必要欄位', 'error'); return; }
-
-  if (editingItemId) {
-    const idx = items.findIndex(i => i.id === editingItemId);
-    if (idx >= 0) items[idx] = {...items[idx], id:code, name, unit, cat, stock, annual, safeMonths};
-    toast('品項已更新', 'success');
-  } else {
-    if (items.find(i => i.id === code)) { toast('貨號已存在', 'error'); return; }
-    items.push({id:code, name, cat, unit, stock, annual, safeMonths});
-    toast('品項已新增', 'success');
-  }
-  closeModal('modal-item');
-  renderInventory();
-}
-
-// ─── ORDER FORM (store) ──────────────────────────────────
-function renderOrderItems() {
-  const chips = document.getElementById('ord-chips');
-  chips.innerHTML = CATEGORIES.map(c => `
-    <button class="chip ${c===ordCatFilter?'active':''}" onclick="setOrdCat('${c}')">${c}</button>
-  `).join('');
-
-  const q = document.getElementById('ord-search').value.toLowerCase();
-  let list = items.filter(i =>
-    (ordCatFilter === '全部' || i.cat === ordCatFilter) &&
-    (i.name.toLowerCase().includes(q))
-  );
-
-  const tbody = document.getElementById('ord-body');
-  tbody.innerHTML = list.map(item => `
-    <tr>
-      <td>
-        <div style="font-weight:500;font-size:13px">${item.name}</div>
-        ${item.note ? `<div class="td-sub">${item.note}</div>` : ''}
-      </td>
-      <td style="color:var(--text3)">${item.unit}</td>
-      <td style="text-align:right">
-        <input type="number" class="qty-input" id="oq-${item.id}" min="0" value="0"
-          oninput="updateOrderCount()">
-      </td>
-    </tr>
-  `).join('');
-  updateOrderCount();
-}
-
-function setOrdCat(c) { ordCatFilter = c; renderOrderItems(); }
-
-function updateOrderCount() {
-  let count = 0;
-  document.querySelectorAll('.qty-input').forEach(el => {
-    if (parseInt(el.value) > 0) count++;
-  });
-  document.getElementById('ord-count').textContent = count;
-}
-
-function submitOrder() {
-  const nameEl = document.getElementById('account-name');
-  const storeName = nameEl.textContent;
-  const orderItems = [];
-  items.forEach(item => {
-    const el = document.getElementById('oq-' + item.id);
-    if (el && parseInt(el.value) > 0) {
-      orderItems.push({id: item.id, name: item.name, qty: parseInt(el.value)});
-    }
-  });
-  if (orderItems.length === 0) { toast('請選擇至少一項商品', 'error'); return; }
-
-  const newOrder = {
-    id: nextOrderId(),
-    store: storeName,
-    storeCode: 'ST-XXX',
-    date: new Date().toISOString().slice(0,10),
-    status: '待確認',
-    items: orderItems
-  };
-  orders.unshift(newOrder);
-  toast(`訂單 ${newOrder.id} 已送出`, 'success');
-  renderOrderItems();
-}
-
-function orderItem(id) {
-  switchRole('store');
-  document.getElementById('role-switcher').value = 'store';
-  setTimeout(() => {
-    const el = document.getElementById('oq-' + id);
-    if (el) { el.value = 1; el.focus(); updateOrderCount(); }
-  }, 100);
-}
-
-// ─── RECORDS ─────────────────────────────────────────────
-function setRecFilter(f, el) {
-  recFilter = f;
-  document.querySelectorAll('#rec-status-chips .chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  renderRecords();
-}
-
-function renderRecords() {
-  let list = recFilter === 'all' ? orders : orders.filter(o => o.status === recFilter);
-  const tbody = document.getElementById('rec-body');
-  if (list.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" class="empty">無訂單紀錄</td></tr>';
-    return;
-  }
-  tbody.innerHTML = list.map(o => `
-    <tr>
-      <td class="td-code" style="font-size:13px">${o.id}</td>
-      <td style="font-weight:500">${o.store}</td>
-      <td style="color:var(--text3)">${o.date}</td>
-      <td style="color:var(--text3)">${o.items.length} 項</td>
-      <td><span class="status-badge ${statusClass(o.status)}">${o.status}</span></td>
-      <td>
-        <div style="display:flex;gap:6px">
-          <button class="btn btn-outline btn-sm" onclick="openOrderDetail('${o.id}')">查看</button>
-          ${currentRole==='manager' && o.status==='待確認' ? `<button class="btn btn-primary btn-sm" onclick="advanceOrder('${o.id}')">開始處理</button>` : ''}
-          ${currentRole==='manager' && o.status==='處理中' ? `<button class="btn btn-primary btn-sm" onclick="completeOrder('${o.id}')">確認完成</button>` : ''}
-        </div>
-      </td>
-    </tr>
-  `).join('');
-}
-
-function openOrderDetail(id) {
-  const o = orders.find(x => x.id === id);
-  if (!o) return;
-  document.getElementById('od-title').textContent = `訂單 ${o.id} — ${o.store}`;
-  document.getElementById('od-body').innerHTML = `
-    <div style="display:flex;gap:20px;margin-bottom:16px;font-size:13px;color:var(--text2)">
-      <span>日期：<strong>${o.date}</strong></span>
-      <span>狀態：<span class="status-badge ${statusClass(o.status)}">${o.status}</span></span>
-    </div>
-    <table style="width:100%">
-      <thead><tr>
-        <th style="text-align:left;padding:7px 10px;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;background:var(--surface2)">品名</th>
-        <th style="text-align:right;padding:7px 10px;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;background:var(--surface2)">數量</th>
-      </tr></thead>
-      <tbody>${o.items.map(i=>`<tr><td style="padding:9px 10px;font-size:13px;border-bottom:1px solid var(--border)">${i.name}</td><td style="padding:9px 10px;font-size:13px;font-family:'DM Mono',monospace;text-align:right;border-bottom:1px solid var(--border)">${i.qty}</td></tr>`).join('')}</tbody>
-    </table>
-  `;
-  let footerHTML = `<button class="btn btn-outline" onclick="closeModal('modal-order-detail')">關閉</button>`;
-  if (currentRole === 'manager') {
-    if (o.status === '待確認') footerHTML += `<button class="btn btn-primary" onclick="advanceOrder('${o.id}');closeModal('modal-order-detail')">開始處理</button>`;
-    if (o.status === '處理中') footerHTML += `<button class="btn btn-primary" onclick="completeOrder('${o.id}');closeModal('modal-order-detail')">確認完成並扣庫存</button>`;
-  }
-  document.getElementById('od-footer').innerHTML = footerHTML;
-  openModal('modal-order-detail');
-}
-
-function advanceOrder(id) {
-  const o = orders.find(x => x.id === id);
-  if (o) { o.status = '處理中'; renderRecords(); renderOverview(); toast(`${o.id} 狀態已更新為處理中`); }
-}
-
-function completeOrder(id) {
-  const o = orders.find(x => x.id === id);
-  if (!o) return;
-  // deduct stock
-  o.items.forEach(oi => {
-    const item = items.find(i => i.id === oi.id);
-    if (item) item.stock = Math.max(0, item.stock - oi.qty);
-  });
-  o.status = '已完成';
-  renderRecords(); renderOverview();
-  toast(`${o.id} 已完成，庫存已扣減`, 'success');
-}
-
-// ─── RECEIVING ────────────────────────────────────────────
-function renderReceiving() {
-  const today = new Date().toISOString().slice(0,10);
-  document.getElementById('recv-date').value = today;
-
-  const body = document.getElementById('recv-body');
-  body.innerHTML = items.map(item => `
-    <div class="receive-item">
-      <div class="receive-name">
-        <div style="font-size:13px;font-weight:500">${item.name}</div>
-        <div style="font-size:11px;color:var(--text3)">${item.cat}</div>
-      </div>
-      <div class="receive-current td-num">${item.stock}</div>
-      <input type="number" class="receive-qty" id="rq-${item.id}" min="0" value="" placeholder="0"
-        oninput="updateRecvAfter('${item.id}')">
-      <div class="receive-after" id="ra-${item.id}">—</div>
-    </div>
-  `).join('');
-}
-
-function updateRecvAfter(id) {
-  const item = items.find(i => i.id === id);
-  const el = document.getElementById('rq-' + id);
-  const after = document.getElementById('ra-' + id);
-  const qty = parseInt(el.value) || 0;
-  after.textContent = qty > 0 ? (item.stock + qty) : '—';
-}
-
-function clearReceiving() {
-  document.querySelectorAll('.receive-qty').forEach(el => el.value = '');
-  document.querySelectorAll('[id^="ra-"]').forEach(el => el.textContent = '—');
-  toast('已清除');
-}
-
-function confirmReceiving() {
-  let count = 0;
-  items.forEach(item => {
-    const el = document.getElementById('rq-' + item.id);
-    const qty = parseInt(el?.value) || 0;
-    if (qty > 0) { item.stock += qty; count++; }
-  });
-  if (count === 0) { toast('請輸入至少一項入庫數量', 'error'); return; }
-  toast(`已入庫 ${count} 項商品`, 'success');
-  renderReceiving();
-}
-
-// ─── ICONS ───────────────────────────────────────────────
-function homeIcon()  { return `<svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1z"/><path d="M9 21V12h6v9"/></svg>`; }
-function boxIcon()   { return `<svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/></svg>`; }
-function listIcon()  { return `<svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>`; }
-function inboxIcon() { return `<svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>`; }
-function cartIcon()  { return `<svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>`; }
-
-// ─── INIT ────────────────────────────────────────────────
-switchRole('manager');
+document.getElementById('li-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+document.getElementById('li-user').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('li-pass').focus();});
 </script>
 </body>
 </html>
