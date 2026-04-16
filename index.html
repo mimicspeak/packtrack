@@ -24,41 +24,53 @@
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;min-height:100vh;display:flex}
 
 /* LOGIN */
-#login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999}
-.login-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:36px 40px;width:380px;box-shadow:var(--shadow-md)}
-.login-logo{font-size:20px;font-weight:600;letter-spacing:-.5px;margin-bottom:4px}
-.login-sub{font-size:12px;color:var(--text3);margin-bottom:26px}
-.login-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;display:block}
-.login-input{width:100%;padding:9px 11px;border:1px solid var(--border2);border-radius:var(--r-sm);font-family:inherit;font-size:13px;color:var(--text);outline:none;transition:border-color .15s;margin-bottom:12px}
-.login-input:focus{border-color:var(--accent)}
-.login-btn{width:100%;padding:10px;background:var(--accent);color:#fff;border:none;border-radius:var(--r-sm);font-family:inherit;font-size:14px;font-weight:500;cursor:pointer}
-.login-btn:hover{background:var(--accent-text)}
-.login-err{font-size:12px;color:var(--danger);margin-top:8px;display:none}
-.login-hint{font-size:11px;color:var(--text3);margin-top:16px;line-height:1.7;background:var(--surface2);padding:10px 12px;border-radius:var(--r-sm)}
+#login-screen{position:fixed;inset:0;background:#1A1A1A;display:flex;align-items:center;justify-content:center;z-index:999;background-image:radial-gradient(ellipse at 30% 50%, #252525 0%, #111111 100%)}
+.login-box{background:#242424;border:1px solid #333;border-radius:var(--r);padding:40px 44px;width:400px;box-shadow:0 24px 60px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.04)}
+.login-logo{font-size:22px;font-weight:700;letter-spacing:.5px;margin-bottom:4px;color:#F5F0E8;text-transform:uppercase}
+.login-sub{font-size:11px;color:#6B6560;margin-bottom:30px;letter-spacing:.08em;text-transform:uppercase}
+.login-label{font-size:10px;font-weight:700;color:#7A7570;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;display:block}
+.login-input{width:100%;padding:10px 12px;border:1px solid #363636;border-radius:var(--r-sm);font-family:inherit;font-size:13px;color:#F0EBE0;background:#1A1A1A;outline:none;transition:border-color .15s;margin-bottom:14px}
+.login-input::placeholder{color:#4A4540}
+.login-input:focus{border-color:#C4A96A}
+.login-btn{width:100%;padding:11px;background:#C4A96A;color:#1A1A1A;border:none;border-radius:var(--r-sm);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:.05em;transition:background .15s}
+.login-btn:hover{background:#D4BA7A}
+.login-err{font-size:12px;color:#E57373;margin-top:10px;display:none}
+.login-hint{font-size:11px;color:#5A5550;margin-top:18px;line-height:1.8;background:#1A1A1A;padding:11px 13px;border-radius:var(--r-sm);border:1px solid #2E2E2E}
 
 /* SIDEBAR */
-.sidebar{width:var(--sidebar);min-height:100vh;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100}
-.brand{padding:20px 18px 16px;border-bottom:1px solid var(--border)}
-.brand-name{font-size:15px;font-weight:600;letter-spacing:-.3px}
-.brand-sub{font-size:11px;color:var(--text3);margin-top:2px}
-.account-bar{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px;cursor:pointer;transition:background .12s}
-.account-bar:hover{background:var(--surface2)}
+:root {
+  --sb-bg: #1E1E1E;
+  --sb-border: #2C2C2C;
+  --sb-text: #EDE8DE;
+  --sb-text2: #8A8480;
+  --sb-text3: #525050;
+  --sb-cream: #F2EBD8;
+  --sb-gold: #C4A96A;
+  --sb-gold-bg: rgba(196,169,106,.10);
+}
+.sidebar{width:var(--sidebar);min-height:100vh;background:var(--sb-bg);border-right:1px solid var(--sb-border);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100}
+.brand{padding:24px 18px 16px;border-bottom:1px solid var(--sb-border)}
+.brand-name{font-size:16px;font-weight:700;letter-spacing:.4px;color:#F5F0E8;text-transform:uppercase}
+.brand-sub{font-size:10px;color:var(--sb-text3);margin-top:3px;letter-spacing:.12em;text-transform:uppercase}
+.account-bar{padding:12px 16px;border-bottom:1px solid var(--sb-border);display:flex;align-items:center;gap:9px;cursor:pointer;transition:background .12s}
+.account-bar:hover{background:rgba(255,255,255,.03)}
 .account-bar-inner{display:flex;align-items:center;gap:9px;flex:1;min-width:0}
-.avatar{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.account-name{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.account-role{font-size:11px;color:var(--text3)}
-.switch-icon{flex-shrink:0;width:22px;height:22px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center}
-.switch-icon svg{width:12px;height:12px;stroke:#fff;fill:none;stroke-width:2.5}
-nav{padding:8px 10px;flex:1}
-.nav-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--r-sm);cursor:pointer;color:var(--text2);font-size:13px;transition:background .12s,color .12s;user-select:none}
-.nav-item:hover{background:var(--surface2);color:var(--text)}
-.nav-item.active{background:var(--accent-bg);color:var(--accent-text);font-weight:500}
-.nav-icon{width:15px;height:15px;opacity:.7;flex-shrink:0}
-.nav-item.active .nav-icon{opacity:1}
-.nav-badge{margin-left:auto;background:var(--warn);color:#fff;font-size:10px;font-weight:600;padding:1px 6px;border-radius:10px;line-height:16px}
-.logout-area{padding:12px 18px;border-top:1px solid var(--border)}
-.logout-link{font-size:12px;color:var(--text3);cursor:pointer;background:none;border:none;font-family:inherit}
-.logout-link:hover{color:var(--text)}
+.avatar{width:30px;height:30px;border-radius:6px;background:#3A3228;color:var(--sb-gold);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;letter-spacing:.05em;border:1px solid #4A4236}
+.account-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--sb-text)}
+.account-role{font-size:10px;color:var(--sb-text3);margin-top:1px}
+.switch-icon{flex-shrink:0;width:22px;height:22px;background:rgba(255,255,255,.06);border-radius:5px;display:flex;align-items:center;justify-content:center}
+.switch-icon svg{width:11px;height:11px;stroke:var(--sb-text2);fill:none;stroke-width:2.5}
+nav{padding:10px 10px;flex:1}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:6px;cursor:pointer;color:var(--sb-text2);font-size:13px;font-weight:500;transition:background .12s,color .12s;user-select:none;letter-spacing:.01em}
+.nav-item:hover{background:rgba(255,255,255,.04);color:var(--sb-text)}
+.nav-item.active{background:var(--sb-gold-bg);color:var(--sb-cream);font-weight:600;border-left:2px solid var(--sb-gold);padding-left:8px}
+.nav-icon{width:15px;height:15px;opacity:.4;flex-shrink:0}
+.nav-item:hover .nav-icon{opacity:.7}
+.nav-item.active .nav-icon{opacity:1;stroke:var(--sb-gold)}
+.nav-badge{margin-left:auto;background:#C4530A;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;line-height:16px}
+.logout-area{padding:14px 16px;border-top:1px solid var(--sb-border)}
+.logout-link{font-size:12px;color:var(--sb-text3);cursor:pointer;background:none;border:none;font-family:inherit;font-weight:500}
+.logout-link:hover{color:var(--sb-text)}
 
 /* SWITCH MODAL */
 .sw-list{display:flex;flex-direction:column;gap:4px;max-height:360px;overflow-y:auto}
@@ -113,11 +125,12 @@ nav{padding:8px 10px;flex:1}
 .chip:hover{background:var(--surface2)}.chip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
 .chips{display:flex;gap:5px;flex-wrap:wrap;flex:1}
 table{width:100%;border-collapse:collapse}
-thead th{text-align:left;padding:9px 12px;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border);background:var(--surface2);white-space:nowrap}
+thead th{text-align:left;padding:9px 12px;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;border-bottom:2px solid var(--border);background:#EDEBE6;white-space:nowrap}
 thead th.r{text-align:right}
 tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+tbody tr:nth-child(even){background:#FAFAF8}
 tbody tr:last-child{border-bottom:none}
-tbody tr:hover{background:var(--surface2)}
+tbody tr:hover{background:#EEF5F0}
 tbody td{padding:10px 12px;font-size:13px}
 .mono{font-family:'DM Mono',monospace;font-size:12px}
 .text2{color:var(--text2)}.text3{color:var(--text3)}
@@ -133,6 +146,10 @@ tbody td{padding:10px 12px;font-size:13px}
 .level-bar{width:72px;height:4px;background:var(--border);border-radius:2px;overflow:hidden;flex-shrink:0}
 .lf{height:100%;border-radius:2px;transition:width .3s}
 .lf.ok{background:var(--ok)}.lf.low{background:var(--low)}.lf.danger{background:var(--danger)}
+/* Quick receive button in on-order cell */
+.on-order-cell{display:flex;align-items:center;justify-content:flex-end;gap:6px}
+.btn-quick-recv{padding:2px 8px;font-size:11px;font-weight:600;border-radius:var(--r-sm);border:1.5px solid var(--accent);color:var(--accent);background:var(--accent-bg);cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .12s}
+.btn-quick-recv:hover{background:var(--accent);color:#fff}
 
 /* USAGE */
 .usage-wrap{overflow-x:auto}
@@ -150,6 +167,14 @@ tbody td{padding:10px 12px;font-size:13px}
 
 /* RECEIVE */
 .recv-row{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--border)}
+.cart-item{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--border);font-size:12px}
+.cart-item:last-child{border-bottom:none}
+.cart-item-name{flex:1;font-weight:500;font-size:12px;line-height:1.3}
+.cart-item-code{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace}
+.cart-qty{width:52px;padding:3px 6px;border:1px solid var(--border2);border-radius:var(--r-sm);font-family:'DM Mono',monospace;font-size:12px;text-align:center;outline:none}
+.cart-qty:focus{border-color:var(--accent)}
+.cart-del{width:22px;height:22px;border-radius:50%;border:none;background:var(--surface2);cursor:pointer;color:var(--text3);font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cart-del:hover{background:var(--danger-bg);color:var(--danger)}
 .recv-name{flex:1;font-size:13px}
 .recv-sub{font-size:11px;color:var(--text3)}
 .recv-cur,.recv-after{width:56px;text-align:right;font-family:'DM Mono',monospace;font-size:12px}
@@ -281,7 +306,7 @@ tbody td{padding:10px 12px;font-size:13px}
         </div>
         <table><thead><tr>
           <th>貨號</th><th>品名</th><th>單位</th>
-          <th class="r">現有庫存</th><th class="r">待入庫</th><th class="r">安全水位</th>
+          <th class="r">現有庫存</th><th class="r">待入庫</th><th></th><th class="r">安全水位</th>
           <th>庫存狀態</th><th></th>
         </tr></thead><tbody id="inv-body"></tbody></table>
       </div>
@@ -293,31 +318,47 @@ tbody td{padding:10px 12px;font-size:13px}
         <div class="toolbar">
           <div class="search-box">
             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--text3);flex-shrink:0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-            <input placeholder="搜尋品名..." id="usage-q" oninput="renderUsage()">
+            <input placeholder="搜尋品名或貨號..." id="usage-q" oninput="renderUsage()">
           </div>
           <div class="chips" id="usage-chips"></div>
+          <button class="btn btn-outline btn-sm" id="usage-hide-btn" onclick="toggleOldMonths()">隱藏舊年度</button>
+          <button class="btn btn-outline btn-sm" onclick="exportUsageExcel()">⬇ 匯出 Excel</button>
           <button class="btn btn-primary btn-sm" onclick="openAddMonthModal()">＋ 新增月份用量</button>
         </div>
         <div class="usage-wrap"><table class="usage-tbl"><thead id="usage-thead"></thead><tbody id="usage-body"></tbody></table></div>
       </div>
     </div>
 
-    <!-- ORDER FORM -->
+    <!-- ORDER FORM with cart -->
     <div class="view" id="view-order">
       <div class="order-info-bar" id="order-info-bar"></div>
-      <div class="card" style="max-width:580px">
-        <div class="toolbar">
-          <div class="search-box" style="flex:1">
-            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--text3);flex-shrink:0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-            <input placeholder="搜尋品名..." id="ord-q" oninput="renderOrderItems()">
+      <div style="display:grid;grid-template-columns:1fr 280px;gap:14px;align-items:start">
+        <!-- Left: item list -->
+        <div class="card">
+          <div class="toolbar">
+            <div class="search-box" style="flex:1">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--text3);flex-shrink:0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input placeholder="搜尋品名或貨號..." id="ord-q" oninput="renderOrderItems()">
+            </div>
+            <div class="chips" id="ord-chips"></div>
           </div>
-          <div class="chips" id="ord-chips"></div>
+          <table><thead><tr><th>貨號</th><th>品名</th><th>單位</th><th class="r">數量</th></tr></thead>
+          <tbody id="ord-body"></tbody></table>
         </div>
-        <table><thead><tr><th>貨號</th><th>品名</th><th>單位</th><th class="r">訂購數量</th></tr></thead>
-        <tbody id="ord-body"></tbody></table>
-        <div class="ord-sumbar">
-          <span style="font-size:13px;color:var(--text2)">已選 <strong id="ord-count">0</strong> 項</span>
-          <button class="btn btn-primary" onclick="submitOrder()">確認送出訂單</button>
+        <!-- Right: cart -->
+        <div style="position:sticky;top:70px">
+          <div class="card">
+            <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+              <div style="font-size:13px;font-weight:600">🛒 購物車 <span id="cart-count" style="background:var(--accent);color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px">0</span></div>
+              <button class="btn btn-outline btn-sm" onclick="clearCart()">清空</button>
+            </div>
+            <div id="cart-body" style="max-height:380px;overflow-y:auto;min-height:60px">
+              <div class="empty" style="padding:24px;font-size:12px" id="cart-empty">尚未選擇商品</div>
+            </div>
+            <div style="padding:12px 14px;border-top:1px solid var(--border)">
+              <button class="btn btn-primary" style="width:100%" onclick="submitOrder()">確認送出訂單</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -341,23 +382,31 @@ tbody td{padding:10px 12px;font-size:13px}
     <!-- RECORDS -->
     <div class="view" id="view-records">
       <div class="card">
-        <div class="toolbar">
-          <div class="chips" id="rec-chips">
-            <button class="chip active" onclick="setRecFilter('all',this)">全部</button>
-            <button class="chip" onclick="setRecFilter('待處理',this)">待處理</button>
-            <button class="chip" onclick="setRecFilter('處理中',this)">處理中</button>
-            <button class="chip" onclick="setRecFilter('已完成',this)">已完成</button>
+        <div class="toolbar" style="flex-wrap:wrap;gap:8px">
+          <div class="search-box" style="min-width:160px">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--text3);flex-shrink:0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input placeholder="搜尋單號或 SR Name..." id="rec-q" oninput="renderRecords()">
           </div>
+          <select class="fi" id="rec-status-filter" onchange="renderRecords()" style="padding:5px 9px;font-size:13px;height:32px">
+            <option value="all">全部狀態</option>
+            <option value="待處理">待處理</option>
+            <option value="處理中">處理中</option>
+            <option value="已完成">已完成</option>
+          </select>
+          <input type="date" class="fi" id="rec-date-from" onchange="renderRecords()" style="padding:5px 9px;font-size:13px;height:32px" placeholder="從">
+          <span style="font-size:13px;color:var(--text3);align-self:center">至</span>
+          <input type="date" class="fi" id="rec-date-to" onchange="renderRecords()" style="padding:5px 9px;font-size:13px;height:32px" placeholder="至">
+          <button class="btn btn-outline btn-sm" onclick="clearRecFilters()">清除篩選</button>
         </div>
         <table><thead><tr>
-          <th>單號</th><th>門市</th><th>Warehouse Code</th><th>日期</th><th>品項數</th><th>狀態</th><th></th>
+          <th>單號</th><th>SR Name</th><th>門市</th><th>Warehouse</th><th>日期</th><th>品項數</th><th>狀態</th><th></th>
         </tr></thead><tbody id="rec-body"></tbody></table>
       </div>
     </div>
 
     <!-- RECEIVING -->
     <div class="view" id="view-receiving">
-      <div style="max-width:560px">
+      <div style="max-width:620px">
         <div class="card" style="margin-bottom:14px">
           <div style="padding:14px 16px;border-bottom:1px solid var(--border)">
             <div class="fg-row">
@@ -366,10 +415,10 @@ tbody td{padding:10px 12px;font-size:13px}
             </div>
           </div>
           <div style="padding:8px 0">
-            <div style="padding:7px 14px;display:grid;grid-template-columns:1fr 56px 80px 60px;gap:8px;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em">
-              <span>品名</span><span style="text-align:right">現有</span><span style="text-align:center">入庫量</span><span>入庫後</span>
+            <div style="padding:7px 14px;display:grid;grid-template-columns:1fr 60px 90px 70px;gap:8px;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border);background:var(--surface2)">
+              <span>品名 / 貨號</span><span style="text-align:right">現有</span><span style="text-align:center">入庫量</span><span>入庫後</span>
             </div>
-            <div id="recv-body" style="max-height:420px;overflow-y:auto"></div>
+            <div id="recv-body" style="max-height:600px;overflow-y:auto"></div>
           </div>
         </div>
         <div style="display:flex;justify-content:flex-end;gap:8px">
@@ -483,6 +532,7 @@ const ITEMS_DATA=[{"id":"3830419","cat":"珠寶盒","name":"珠寶盒12*12*11","
 let items = JSON.parse(JSON.stringify(ITEMS_DATA));
 let orders = [];
 let MONTHS_LIST = [...MONTHS]; // mutable copy
+let hideOldMonths = false; // toggle for usage view
 let currentUser = null;
 let editingItemId = null;
 let editingOrderId = null;
@@ -490,7 +540,7 @@ let invCatFilter = '全部';
 let invAlertOnly = false;
 let ordCatFilter = '全部';
 let usageCatFilter = '全部';
-let recFilter = 'all';
+let recFilter = 'all'; // kept for backward compat, filter now uses DOM elements
 let myOrdFilter = 'all';
 
 const CATS = [
@@ -646,14 +696,13 @@ function openModal(id) {
 }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-function nextOrderId(storeName) {
+function nextOrderId(srName) {
   const now = new Date();
   const y = now.getFullYear();
   const m = String(now.getMonth()+1).padStart(2,'0');
   const d = String(now.getDate()).padStart(2,'0');
   const dateStr = `${y}${m}${d}`;
-  // Count existing orders for same store+date prefix
-  const prefix = storeName + '-' + dateStr + '-';
+  const prefix = srName + '-' + dateStr + '-';
   const existing = orders.filter(o => o.id.startsWith(prefix));
   const seq = String(existing.length + 1).padStart(3,'0');
   return prefix + seq;
@@ -661,6 +710,7 @@ function nextOrderId(storeName) {
 function badgeClass(s) {
   if (s==='已完成') return 'done';
   if (s==='處理中') return 'processing';
+  if (s==='已取消') return 'ok-tag';
   return 'pending';
 }
 
@@ -716,11 +766,25 @@ function renderInv() {
   if (invAlertOnly) list = list.filter(i => stockStatus(i).status !== 'ok');
   const isA = currentUser.role === 'admin';
   const tbody = document.getElementById('inv-body');
-  if (!list.length) { tbody.innerHTML = '<tr><td colspan="8" class="empty">無符合品項</td></tr>'; return; }
+  if (!list.length) { tbody.innerHTML = '<tr><td colspan="9" class="empty">無符合品項</td></tr>'; return; }
   tbody.innerHTML = list.map(item => {
     const s = stockStatus(item); const sq = safeQty(item);
     const mlabel = s.months ? `<span style="font-size:11px;color:var(--text3);margin-left:5px">${s.months}個月</span>` : '';
-    return `<tr><td class="mono text3">${item.id}</td><td><div style="font-weight:500">${item.name}</div>${item.moq?`<div class="td-sub">${item.moq}</div>`:''}</td><td class="text3">${item.unit}</td><td class="td-r mono">${item.stock}</td><td class="td-r mono text3">${item.on_order||0}</td><td class="td-r mono text3">${sq||'—'}</td><td><div class="level-wrap"><div class="level-bar"><div class="lf ${s.status}" style="width:${Math.min(100,Math.max(2,s.pct))}%"></div></div><span class="badge ${s.cls}">${s.label}</span>${mlabel}</div></td><td>${isA?`<button class="btn btn-outline btn-sm" onclick="openEditItem('${item.id}')">編輯</button>`:''}</td></tr>`;
+    const onOrder = item.on_order||0;
+    const recvBtn = (isA && onOrder > 0)
+      ? `<button class="btn-quick-recv" onclick="quickReceive('${item.id}')">入庫 +${onOrder}</button>`
+      : '';
+    return `<tr>
+      <td class="mono text3">${item.id}</td>
+      <td><div style="font-weight:500">${item.name}</div>${item.moq?`<div class="td-sub">${item.moq}</div>`:''}</td>
+      <td class="text3">${item.unit}</td>
+      <td class="td-r mono">${item.stock}</td>
+      <td class="td-r mono text3">${onOrder}</td>
+      <td>${recvBtn}</td>
+      <td class="td-r mono text3">${sq||'—'}</td>
+      <td><div class="level-wrap"><div class="level-bar"><div class="lf ${s.status}" style="width:${Math.min(100,Math.max(2,s.pct))}%"></div></div><span class="badge ${s.cls}">${s.label}</span>${mlabel}</div></td>
+      <td>${isA?`<button class="btn btn-outline btn-sm" onclick="openEditItem('${item.id}')">編輯</button>`:''}</td>
+    </tr>`;
   }).join('');
 }
 function setInvCat(c) { invCatFilter=c; renderInv(); }
@@ -733,20 +797,58 @@ function toggleAlertOnly() {
 }
 
 // ── USAGE ────────────────────────────────────
+let usageVisibleMonths = null; // null = show all
+function toggleOldMonths() {
+  hideOldMonths = !hideOldMonths;
+  const btn = document.getElementById('usage-hide-btn');
+  btn.textContent = hideOldMonths ? '顯示全部年度' : '隱藏舊年度';
+  btn.className = hideOldMonths ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm';
+  renderUsage();
+}
 function renderUsage() {
   const chips = document.getElementById('usage-chips');
   chips.innerHTML = CATS.map(c => `<button class="chip ${c===usageCatFilter?'active':''}" onclick="setUsageCat('${c}')">${c}</button>`).join('');
   const q = document.getElementById('usage-q').value.toLowerCase();
-  let list = items.filter(i => (usageCatFilter==='全部'||i.cat===usageCatFilter) && (i.name.toLowerCase().includes(q)||i.id.includes(q)));
-  document.getElementById('usage-thead').innerHTML = '<tr><th>貨號</th><th style="min-width:180px">品名</th><th class="r">現有</th><th class="r">安全水位</th><th class="r">月均</th><th class="r">剩餘月數</th>' + MONTHS_LIST.map(m=>'<th class="r">'+m+'</th>').join('') + '</tr>';
+  // BUG FIX: search both name AND id (case-insensitive for both)
+  let list = items.filter(i => (usageCatFilter==='全部'||i.cat===usageCatFilter) &&
+    (i.name.toLowerCase().includes(q) || i.id.toLowerCase().includes(q)));
+
+  // Determine which months to show
+  const latestYear = MONTHS_LIST.length ? MONTHS_LIST[MONTHS_LIST.length-1].split('-')[0] : null;
+  const visMonths = hideOldMonths
+    ? MONTHS_LIST.filter(m => m.startsWith(latestYear))
+    : MONTHS_LIST;
+
+  document.getElementById('usage-thead').innerHTML = '<tr><th>貨號</th><th style="min-width:180px">品名</th><th class="r">現有</th><th class="r">安全水位</th><th class="r">月均</th><th class="r">剩餘月數</th>' +
+    (hideOldMonths ? `<th class="r" style="color:var(--text3);font-size:10px" colspan="1">（顯示 ${latestYear} 年）</th>` : '') +
+    visMonths.map(m=>'<th class="r">'+m+'</th>').join('') + '</tr>';
   document.getElementById('usage-body').innerHTML = list.map(item => {
     const sq=safeQty(item); const avg=avgMonthly(item);
     const s = stockStatus(item);
     const ml = s.months || (avg>0 ? (effectiveStock(item)/avg).toFixed(1) : '∞');
-    return '<tr><td class="mono text3" style="font-size:12px">'+item.id+'</td><td class="name-col">'+item.name+'</td><td class="uc '+(item.stock>0?'has':'zero')+'">'+item.stock+'</td><td class="uc text3">'+(sq||'—')+'</td><td class="uc text3">'+(avg>0?avg.toFixed(1):'—')+'</td><td class="uc"><span class="badge '+s.cls+'">'+ml+'</span></td>'+MONTHS_LIST.map(m=>{const v=item.monthly_usage[m]||0;return '<td class="uc '+(v>0?'has':'zero')+'">'+(v>0?v:'—')+'</td>';}).join('')+'</tr>';
+    return '<tr><td class="mono text3" style="font-size:12px">'+item.id+'</td><td class="name-col">'+item.name+'</td><td class="uc '+(item.stock>0?'has':'zero')+'">'+item.stock+'</td><td class="uc text3">'+(sq||'—')+'</td><td class="uc text3">'+(avg>0?avg.toFixed(1):'—')+'</td><td class="uc"><span class="badge '+s.cls+'">'+ml+'</span></td>'+
+      (hideOldMonths ? '<td></td>' : '') +
+      visMonths.map(m=>{const v=item.monthly_usage[m]||0;return '<td class="uc '+(v>0?'has':'zero')+'">'+(v>0?v:'—')+'</td>';}).join('')+'</tr>';
   }).join('');
 }
 function setUsageCat(c) { usageCatFilter=c; renderUsage(); }
+
+function exportUsageExcel() {
+  // Build CSV then download as Excel-compatible
+  const cols = ['貨號','品名','待入庫','安全水位','庫存狀態'];
+  const rows = items.map(item => {
+    const sq = safeQty(item);
+    const s = stockStatus(item);
+    return [item.id, item.name, item.on_order||0, sq||'—', s.label].join('\t');
+  });
+  const tsv = cols.join('\t') + '\n' + rows.join('\n');
+  const blob = new Blob(['\uFEFF'+tsv], {type:'text/tab-separated-values;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'GJ_PackTrack_庫存狀態_' + new Date().toISOString().slice(0,10) + '.xls';
+  a.click();
+  toast('已匯出 Excel','ok');
+}
 
 // ── ITEM MODAL ───────────────────────────────
 function openAddItem() {
@@ -797,21 +899,99 @@ function renderOrderItems() {
   document.getElementById('ord-body').innerHTML = list.map(item=>`<tr><td class="mono text3" style="font-size:12px">${item.id}</td><td><div style="font-weight:500">${item.name}</div>${item.moq?`<div class="td-sub">${item.moq}</div>`:''}</td><td class="text3">${item.unit}</td><td class="td-r"><input type="number" class="qty-input" id="oq-${item.id}" min="0" value="0" oninput="updateOrdCount()"></td></tr>`).join('');
   updateOrdCount();
 }
-function setOrdCat(c) { ordCatFilter=c; renderOrderItems(); }
-function updateOrdCount() {
-  let n=0; document.querySelectorAll('.qty-input').forEach(el=>{if(parseInt(el.value)>0)n++;});
-  document.getElementById('ord-count').textContent=n;
+// ── ORDER FORM + CART ────────────────────────
+let cart = {}; // { itemId: qty }
+
+function renderOrderItems() {
+  const u = currentUser;
+  document.getElementById('order-info-bar').innerHTML = '訂購門市：<strong>'+u.storeName+'</strong> &nbsp;·&nbsp; Warehouse Code：<strong>'+u.warehouseCode+'</strong>';
+  const chips = document.getElementById('ord-chips');
+  chips.innerHTML = CATS.map(c=>`<button class="chip ${c===ordCatFilter?'active':''}" onclick="setOrdCat('${c}')">${c}</button>`).join('');
+  const q = document.getElementById('ord-q').value.toLowerCase();
+  let list = items.filter(i=>(ordCatFilter==='全部'||i.cat===ordCatFilter)&&(i.name.toLowerCase().includes(q)||i.id.toLowerCase().includes(q)));
+  document.getElementById('ord-body').innerHTML = list.map(item=>`
+    <tr>
+      <td class="mono text3" style="font-size:12px">${item.id}</td>
+      <td><div style="font-weight:500">${item.name}</div>${item.moq?`<div class="td-sub">MOQ: ${item.moq}</div>`:''}</td>
+      <td class="text3">${item.unit}</td>
+      <td class="td-r"><input type="number" class="qty-input" id="oq-${item.id}" min="0" value="${cart[item.id]||0}" placeholder="0" oninput="updateCart('${item.id}',this.value)"></td>
+    </tr>`).join('');
+  renderCart();
 }
+function setOrdCat(c) { ordCatFilter=c; renderOrderItems(); }
+
+function updateCart(itemId, val) {
+  const qty = parseInt(val)||0;
+  if (qty > 0) cart[itemId] = qty;
+  else delete cart[itemId];
+  renderCart();
+}
+
+function renderCart() {
+  const cartKeys = Object.keys(cart);
+  const countEl = document.getElementById('cart-count');
+  const bodyEl = document.getElementById('cart-body');
+  const emptyEl = document.getElementById('cart-empty');
+  if (!countEl || !bodyEl) return;
+  countEl.textContent = cartKeys.length;
+  if (!cartKeys.length) {
+    emptyEl && (emptyEl.style.display='');
+    bodyEl.innerHTML = '<div class="empty" style="padding:24px;font-size:12px" id="cart-empty">尚未選擇商品</div>';
+    return;
+  }
+  bodyEl.innerHTML = cartKeys.map(id => {
+    const item = items.find(i=>i.id===id);
+    if (!item) return '';
+    return `<div class="cart-item">
+      <div style="flex:1;min-width:0">
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-code">${item.id} · ${item.unit}</div>
+      </div>
+      <input type="number" class="cart-qty" min="1" value="${cart[id]}" onchange="updateCartQty('${id}',this.value)">
+      <button class="cart-del" onclick="removeFromCart('${id}')">×</button>
+    </div>`;
+  }).join('');
+}
+
+function updateCartQty(itemId, val) {
+  const qty = parseInt(val)||0;
+  if (qty > 0) {
+    cart[itemId] = qty;
+    // sync back to table input if visible
+    const el = document.getElementById('oq-'+itemId);
+    if (el) el.value = qty;
+  } else {
+    removeFromCart(itemId);
+  }
+}
+
+function removeFromCart(itemId) {
+  delete cart[itemId];
+  const el = document.getElementById('oq-'+itemId);
+  if (el) el.value = 0;
+  renderCart();
+}
+
+function clearCart() {
+  cart = {};
+  document.querySelectorAll('.qty-input').forEach(el=>el.value=0);
+  renderCart();
+}
+
 function submitOrder() {
   const u = currentUser;
-  const oi = [];
-  items.forEach(item=>{const el=document.getElementById('oq-'+item.id);if(el&&parseInt(el.value)>0)oi.push({id:item.id,name:item.name,qty:parseInt(el.value)});});
-  if(!oi.length){toast('請選擇至少一項商品','err');return;}
-  const orderId = nextOrderId(u.storeName);
+  const oi = Object.keys(cart).map(id => {
+    const item = items.find(i=>i.id===id);
+    return item ? {id:item.id, name:item.name, qty:cart[id]} : null;
+  }).filter(Boolean);
+  if (!oi.length) { toast('購物車是空的，請先選擇商品','err'); return; }
+  const orderId = nextOrderId(u.srName || u.storeName);
   const o = {id:orderId, store:u.storeName, warehouseCode:u.warehouseCode, srName:u.srName, date:new Date().toISOString().slice(0,10), status:'待處理', items:oi};
   orders.unshift(o);
-  toast('訂單 '+o.id+' 已送出','ok');
+  cart = {};
+  toast('訂單 '+o.id+' 已送出 ✓','ok');
   renderOrderItems();
+  renderOverview();
 }
 
 // ── MY ORDERS ────────────────────────────────
@@ -823,23 +1003,76 @@ function renderMyOrders() {
   let list = orders.filter(o=>o.srName===u.srName);
   if(myOrdFilter!=='all') list=list.filter(o=>o.status===myOrdFilter);
   const tbody = document.getElementById('my-ord-body');
-  if(!list.length){tbody.innerHTML='<tr><td colspan="5" class="empty">無訂單紀錄</td></tr>';return;}
-  tbody.innerHTML=list.map(o=>`<tr><td class="mono" style="font-size:11px;max-width:140px;overflow:hidden;text-overflow:ellipsis">${o.id}</td><td class="text3">${o.date}</td><td class="text3">${o.items.length} 項</td><td><span class="badge ${badgeClass(o.status)}">${o.status}</span></td><td><button class="btn btn-outline btn-sm" onclick="openOrderDetail('${o.id}')">查看</button></td></tr>`).join('');
+  if(!list.length){tbody.innerHTML='<tr><td colspan="6" class="empty">無訂單紀錄</td></tr>';return;}
+  tbody.innerHTML=list.map(o=>{
+    const canEdit = o.status==='待處理';
+    const canCancel = o.status==='待處理'||o.status==='處理中';
+    let btns = `<button class="btn btn-outline btn-sm" onclick="openOrderDetail('${o.id}')">查看</button>`;
+    if(canEdit) btns += ` <button class="btn btn-outline btn-sm" onclick="openMyOrderEdit('${o.id}')">修改</button>`;
+    if(canCancel) btns += ` <button class="btn btn-sm" style="background:var(--danger-bg);color:var(--danger);border:1px solid #fca5a5" onclick="cancelMyOrder('${o.id}')">取消</button>`;
+    return `<tr>
+      <td class="mono" style="font-size:11px;max-width:160px;overflow:hidden;text-overflow:ellipsis">${o.id}</td>
+      <td class="text3">${o.date}</td>
+      <td class="text3">${o.items.length} 項 / ${o.items.reduce((s,i)=>s+i.qty,0)} 件</td>
+      <td><span class="badge ${badgeClass(o.status)}">${o.status}</span></td>
+      <td><div style="display:flex;gap:4px;flex-wrap:wrap">${btns}</div></td>
+    </tr>`;
+  }).join('');
+}
+
+function cancelMyOrder(id) {
+  const o = orders.find(x=>x.id===id); if(!o) return;
+  if(!confirm('確定要取消訂單 '+id+' 嗎？')) return;
+  o.status = '已取消';
+  renderMyOrders(); renderOverview();
+  toast('訂單 '+id+' 已取消');
+}
+
+function openMyOrderEdit(id) {
+  // Open order detail modal in edit mode for store users
+  openOrderDetail(id);
 }
 
 // ── RECORDS ──────────────────────────────────
-function setRecFilter(f,el) {
-  recFilter=f; document.querySelectorAll('#rec-chips .chip').forEach(c=>c.classList.remove('active')); el.classList.add('active'); renderRecords();
+function clearRecFilters() {
+  document.getElementById('rec-q').value = '';
+  document.getElementById('rec-status-filter').value = 'all';
+  document.getElementById('rec-date-from').value = '';
+  document.getElementById('rec-date-to').value = '';
+  renderRecords();
 }
 function renderRecords() {
-  let list = recFilter==='all' ? orders : orders.filter(o=>o.status===recFilter);
+  const q = (document.getElementById('rec-q')?.value||'').toLowerCase().trim();
+  const statusF = document.getElementById('rec-status-filter')?.value || 'all';
+  const dateFrom = document.getElementById('rec-date-from')?.value || '';
+  const dateTo = document.getElementById('rec-date-to')?.value || '';
+
+  let list = [...orders];
+  if (statusF !== 'all') list = list.filter(o=>o.status===statusF);
+  if (q) list = list.filter(o=>
+    o.id.toLowerCase().includes(q) ||
+    (o.srName||'').toLowerCase().includes(q) ||
+    (o.store||'').toLowerCase().includes(q)
+  );
+  if (dateFrom) list = list.filter(o=>o.date >= dateFrom);
+  if (dateTo)   list = list.filter(o=>o.date <= dateTo);
+
   const tbody = document.getElementById('rec-body');
-  if(!list.length){tbody.innerHTML='<tr><td colspan="7" class="empty">無訂單紀錄</td></tr>';return;}
+  if(!list.length){tbody.innerHTML='<tr><td colspan="8" class="empty">無符合訂單</td></tr>';return;}
   tbody.innerHTML=list.map(o=>{
     let btns=`<button class="btn btn-outline btn-sm" onclick="openOrderDetail('${o.id}')">查看/編輯</button>`;
     if(o.status==='待處理') btns+=` <button class="btn btn-primary btn-sm" onclick="advanceOrder('${o.id}')">開始處理</button>`;
     if(o.status==='處理中') btns+=` <button class="btn btn-primary btn-sm" onclick="completeOrder('${o.id}')">完成出庫</button>`;
-    return `<tr><td class="mono" style="font-size:11px;max-width:140px">${o.id}</td><td style="font-weight:500">${o.store}</td><td class="mono text3">${o.warehouseCode||'—'}</td><td class="text3">${o.date}</td><td class="text3">${o.items.length} 項</td><td><span class="badge ${badgeClass(o.status)}">${o.status}</span></td><td><div style="display:flex;gap:5px;flex-wrap:wrap">${btns}</div></td></tr>`;
+    return `<tr>
+      <td class="mono" style="font-size:11px">${o.id}</td>
+      <td class="mono text3" style="font-size:12px">${o.srName||'—'}</td>
+      <td style="font-weight:500">${o.store}</td>
+      <td class="mono text3" style="font-size:12px">${o.warehouseCode||'—'}</td>
+      <td class="text3">${o.date}</td>
+      <td class="text3">${o.items.length} 項 / ${o.items.reduce((s,i)=>s+i.qty,0)} 件</td>
+      <td><span class="badge ${badgeClass(o.status)}">${o.status}</span></td>
+      <td><div style="display:flex;gap:5px;flex-wrap:wrap">${btns}</div></td>
+    </tr>`;
   }).join('');
 }
 
@@ -1000,6 +1233,17 @@ function completeOrder(id) {
 }
 
 // ── RECEIVING ────────────────────────────────
+function quickReceive(itemId) {
+  const item = items.find(i=>i.id===itemId); if(!item) return;
+  const onOrder = item.on_order||0;
+  if(!onOrder){ toast('此品項無待入庫數量','err'); return; }
+  if(!confirm(`確定將 ${item.name} 的待入庫數量 ${onOrder} ${item.unit} 加入現有庫存？`)) return;
+  item.stock += onOrder;
+  item.on_order = 0;
+  renderInv();
+  renderOverview();
+  toast(`${item.name} 已入庫 ${onOrder} ${item.unit}`, 'ok');
+}
 function renderReceiving() {
   document.getElementById('recv-date').value = new Date().toISOString().slice(0,10);
   document.getElementById('recv-body').innerHTML = items.map(item=>`<div class="recv-row"><div class="recv-name"><div>${item.name}</div><div class="recv-sub">${item.id} · ${item.cat||''}</div></div><div class="recv-cur">${item.stock}</div><input type="number" class="recv-qty" id="rq-${item.id}" min="0" placeholder="0" oninput="updateRecvAfter('${item.id}')"><div class="recv-after" id="ra-${item.id}">—</div></div>`).join('');
